@@ -132,11 +132,11 @@ const Navbar: React.FC = () => {
                     {/* Auth Buttons */}
                     <div className="hidden md:flex items-center gap-3 shrink-0">
                         <LiquidButton
-                            className="cursor-pointer px-5 py-2.5 text-xs lg:text-sm font-medium text-text-main rounded-xl shadow-sm shadow-green-400/20"
+                            className="font-heading cursor-pointer px-5 py-2.5 text-xs lg:text-sm font-medium text-text-main rounded-xl shadow-sm shadow-green-400/20"
                         >
                             Log in
                         </LiquidButton>
-                        <RippleButton className="inline-block cursor-pointer px-5 py-2.5 bg-primary text-white text-xs lg:text-sm font-semibold rounded-xl hover:bg-green-500 shadow-md shadow-green-400/20">
+                        <RippleButton className="font-heading cursor-pointer px-5 py-2.5 bg-primary text-white text-xs lg:text-sm rounded-xl hover:bg-green-500 shadow-md shadow-green-400/20">
                             Get Started
                             <RippleButtonRipples />
                         </RippleButton>
@@ -169,10 +169,10 @@ const Navbar: React.FC = () => {
                         ))}
                         <div className="h-px bg-gray-100 my-2"></div>
                         <div className="flex gap-3">
-                            <LiquidButton className="cursor-pointer flex-1 px-4 py-3 text-text-main rounded-xl font-medium text-sm shadow-sm shadow-green-400/10">
+                            <LiquidButton className="font-heading cursor-pointer flex-1 px-4 py-3 text-text-main rounded-xl font-medium text-sm shadow-sm shadow-green-400/10">
                                 Log in
                             </LiquidButton>
-                            <RippleButton className="cursor-pointer flex-1 px-4 py-3 bg-primary text-white hover:bg-green-500 rounded-xl font-medium text-sm shadow-md">
+                            <RippleButton className="font-heading cursor-pointer flex-1 px-4 py-3 bg-primary text-white hover:bg-green-500 rounded-xl font-medium text-sm shadow-md">
                                 Get Started
                                 <RippleButtonRipples />
                             </RippleButton>

@@ -27,7 +27,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ data, className = '' }) => {
                 <div className="p-3 bg-green-100 rounded-full">
                     {getIcon()}
                 </div>
-                <h3 className="text-lg font-semibold text-text-main line-clamp-4 leading-tight">
+                <h3 className="text-lg font-heading font-medium text-text-main line-clamp-4 leading-tight">
                     {data.question}
                 </h3>
                 <div className="absolute bottom-4 right-4">
@@ -48,7 +48,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ data, className = '' }) => {
                 <div className="mb-3">
                     <CheckCircle className="w-8 h-8 text-green-200" />
                 </div>
-                <div className="text-xl font-bold">
+                <div className="text-xl font-heading font-medium">
                     {Array.isArray(data.answer) ? data.answer.join(', ') : data.answer}
                 </div>
             </div>

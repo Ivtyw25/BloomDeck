@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Varela_Round, Poppins } from "next/font/google";
+import { Toaster } from 'sonner';
 import "./globals.css";
 
 const varelaRound = Varela_Round({
@@ -30,6 +31,7 @@ export default function RootLayout({
         className={`${varelaRound.variable} ${poppins.variable} antialiased`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

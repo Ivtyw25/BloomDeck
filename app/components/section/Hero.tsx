@@ -1,5 +1,6 @@
 'use client'
 import React, { useRef } from 'react';
+import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Flashcard from '@/components/ui/Flashcards';
 import { HERO_FLASHCARDS } from '@/lib/constants';
@@ -17,20 +18,30 @@ const Hero: React.FC = () => {
     useGSAP(() => {
         const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
+        // Headline Animation: Subtle slide up
         tl.from(headlineRef.current, {
-            x: -50,
+            y: 20,
             opacity: 0,
-            filter: 'blur(10px)',
             duration: 1,
             delay: 0.3
-        })
-            .from(flashcardsRef.current?.children || [], {
-                x: 50,
+        });
+
+        // Flashcards Animation: "Dealing Cards" Effect
+        if (flashcardsRef.current) {
+            tl.from(flashcardsRef.current.children, {
+                y: 100, // Start from below
+                scale: 0.5, // Start small
                 opacity: 0,
-                filter: 'blur(10px)',
+                rotation: 0, // Start with 0 rotation and spin to final state
                 duration: 1,
-                stagger: 0.15
-            }, "-=0.5")
+                stagger: {
+                    each: 0.1,
+                    from: "center" // Animate from center outwards
+                },
+                ease: "back.out(1.5)" // Elastic bounce effect
+            }, "-=0.4");
+        }
+
     }, { scope: headlineRef });
 
     return (
@@ -45,10 +56,10 @@ const Hero: React.FC = () => {
                     <div ref={headlineRef} className="w-full lg:w-5/12 space-y-8 text-center lg:text-left mb-16 lg:mb-0 relative z-20">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100/50 text-gray-900 rounded-full text-sm font-semibold tracking-wide border border-primary/20 backdrop-blur-sm">
                             <Sparkles className="w-4 h-4 text-green-600" />
-                            <span>Smart Learning Evolved</span>
+                            <span className='font-sans font-medium'>Smart Learning Evolved</span>
                         </div>
 
-                        <SplitText className="text-5xl lg:text-6xl font-bold text-text-main leading-[1.15]" duration={0.25} delay={70}>
+                        <SplitText className="font-heading text-5xl lg:text-6xl font-bold text-text-main leading-[1.15]" duration={0.25} delay={70}>
                             Master any subject with <span className="text-primary relative inline-block">
                                 BloomDeck
                                 <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary/40 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none">
@@ -58,18 +69,20 @@ const Hero: React.FC = () => {
                         </SplitText>
                         <TextType
                             text={["Create, share, and study flashcards with our intuitive platform.", "Boost your retention with spaced repetition and gamified learning modes."]}
-                            className="text-lg lg:text-md text-gray-700 leading-relaxed max-w-lg mx-auto lg:mx-0"
+                            className="text-lg font-sans lg:text-md text-gray-700 leading-relaxed max-w-lg mx-auto lg:mx-0"
                             as='p'
                             pauseDuration={3000}
                             showCursor={false}
                             startOnVisible={true}
                             initialDelay={500} />
                         <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4 -mt-6">
-                            <RippleButton className="group px-8 py-4 bg-primary text-white rounded-2xl font-semibold text-lg hover:bg-green-500 flex items-center gap-2 cursor-pointer">
-                                Start Learning Now
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                <RippleButtonRipples />
-                            </RippleButton>
+                            <Link href="/dashboard">
+                                <RippleButton className=" group px-8 py-4 bg-primary text-white rounded-2xl font-semibold text-lg hover:bg-green-500 flex items-center gap-2 cursor-pointer">
+                                    Start Learning Now
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    <RippleButtonRipples />
+                                </RippleButton>
+                            </Link>
                         </div>
                     </div>
 
