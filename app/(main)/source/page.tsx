@@ -33,7 +33,7 @@ export default function SourcePage() {
                 <Link href="/source/upload">
                     <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-semibold hover:bg-green-500 transition-all shadow-md shadow-[#b5d365]/20 group cursor-pointer active:scale-95">
                         <Upload className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform duration-300" strokeWidth={2.5} />
-                        <span className="text-sm">Upload Material</span>
+                        <span className="text-sm">Upload Sources</span>
                     </button>
                 </Link>
             </PageHeader>

@@ -6,7 +6,7 @@ export enum FlashcardType {
   CODE_SNIPPET = 'CODE_SNIPPET'
 }
 
-export interface FlashcardData {
+export interface HeroFlashcardData {
   id: string;
   type: FlashcardType;
   question: string;
@@ -14,6 +14,12 @@ export interface FlashcardData {
   difficulty: 'Easy' | 'Medium' | 'Hard';
 }
 
+export interface FlashcardData {
+  id: string;
+  term: string;
+  definition: string;
+  isStarred?: boolean;
+}
 
 // type of file supported
 export type FileType = 'PDF' | 'DOCX' | 'PPT' | 'YOUTUBE' | 'MIXED';
@@ -22,7 +28,7 @@ export interface SourceDocument {
   id: string;
   title: string;
   type: FileType;
-  containedTypes?: FileType[]; 
+  containedTypes?: FileType[];
   dateAdded: string; // ISO String for sorting
   size?: string; // Optional for YouTube
 }

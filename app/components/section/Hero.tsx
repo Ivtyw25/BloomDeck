@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import Flashcard from '@/components/ui/Flashcards';
+import Flashcard from '@/components/ui/HeroFlashCards';
 import { HERO_FLASHCARDS } from '@/lib/constants';
 import { BubbleBackground } from "@/components/animate-ui/components/backgrounds/bubble";
 import { RippleButton, RippleButtonRipples } from '@/components/animate-ui/primitives/buttons/ripple';
@@ -79,7 +79,7 @@ const Hero: React.FC = () => {
                             <Link href="/dashboard">
                                 <RippleButton className=" group px-8 py-4 bg-primary text-white rounded-2xl font-semibold text-lg hover:bg-green-500 flex items-center gap-2 cursor-pointer">
                                     Start Learning Now
-                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                                     <RippleButtonRipples />
                                 </RippleButton>
                             </Link>

@@ -1,13 +1,13 @@
 import React from 'react';
-import { FlashcardData, FlashcardType } from '@/types/types';
+import { HeroFlashcardData, FlashcardType } from '@/types/types';
 import { HelpCircle, CheckCircle, Code, List, Type } from 'lucide-react';
 
 interface FlashcardProps {
-    data: FlashcardData;
+    data: HeroFlashcardData;
     className?: string;
 }
 
-const Flashcard: React.FC<FlashcardProps> = ({ data, className = '' }) => {
+export default function HeroFlashCard({ data, className = '' }: FlashcardProps) {
     const getIcon = () => {
         switch (data.type) {
             case FlashcardType.MULTIPLE_CHOICE:
@@ -62,7 +62,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ data, className = '' }) => {
                 {/* Front Face */}
                 <div className="absolute inset-0 w-full h-full backface-hidden bg-white border border-primary/10 rounded-3xl overflow-hidden shadow-sm">
                     {/* Top decorative stripe */}
-                    <div className="h-2 w-full bg-primary"/>
+                    <div className="h-2 w-full bg-primary" />
                     {renderFrontContent()}
                 </div>
 
@@ -75,4 +75,3 @@ const Flashcard: React.FC<FlashcardProps> = ({ data, className = '' }) => {
     );
 };
 
-export default Flashcard;

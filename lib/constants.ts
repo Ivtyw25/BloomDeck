@@ -1,7 +1,7 @@
-import { FlashcardData, FlashcardType, MaterialItem } from '@/types/types';
+import { HeroFlashcardData, FlashcardData, FlashcardType, MaterialItem } from '@/types/types';
 import { SourceDocument } from '@/types/types';
 
-export const HERO_FLASHCARDS: FlashcardData[] = [
+export const HERO_FLASHCARDS: HeroFlashcardData[] = [
   {
     id: '1',
     type: FlashcardType.TEXT,
@@ -32,6 +32,75 @@ export const HERO_FLASHCARDS: FlashcardData[] = [
   }
 ];
 
+export const FLASHCARDS: FlashcardData[] = [
+  {
+    id: '1',
+    term: 'Mitochondria',
+    definition: 'The powerhouse of the cell, responsible for generating most of the cell\'s supply of adenosine triphosphate (ATP).',
+    isStarred: false
+  },
+  {
+    id: '2',
+    term: 'Photosynthesis',
+    definition: 'The process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water.',
+    isStarred: true
+  },
+  {
+    id: '3',
+    term: 'Polymorphism',
+    definition: 'The ability of an object to take on many forms. In OOP, it allows a child class to provide a specific implementation of a method already provided by its parent.',
+    isStarred: false
+  },
+  {
+    id: '4',
+    term: 'API',
+    definition: 'Application Programming Interface. A set of rules that allows one software application to talk to another.',
+    isStarred: false
+  },
+  {
+    id: '5',
+    term: 'Newton\'s First Law',
+    definition: 'An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.',
+    isStarred: false
+  },
+  {
+    id: '6',
+    term: 'DOM',
+    definition: 'Document Object Model. A programming interface for web documents that represents the page so that programs can change the document structure, style, and content.',
+    isStarred: true
+  },
+  {
+    id: '7',
+    term: 'Big O Notation',
+    definition: 'A mathematical notation that describes the limiting behavior of a function when the argument tends towards a particular value or infinity, often used to classify algorithms by runtime.',
+    isStarred: false
+  },
+  {
+    id: '8',
+    term: 'Oxidation',
+    definition: 'A chemical reaction that takes place when a substance comes into contact with oxygen or another oxidizing substance.',
+    isStarred: false
+  },
+  {
+    id: '9',
+    term: 'HTTP',
+    definition: 'Hypertext Transfer Protocol. An application layer protocol for transmitting hypermedia documents, such as HTML.',
+    isStarred: false
+  },
+  {
+    id: '10',
+    term: 'Recursion',
+    definition: 'The process of defining a problem (or the solution to a problem) in terms of (a simpler version of) itself.',
+    isStarred: true
+  },
+  {
+    id: '11',
+    term: 'Recursion',
+    definition: 'The process of defining a problem (or the solution to a problem) in terms of (a simpler version of) itself.',
+    isStarred: true
+  }
+];
+
 export const NAV_SECTIONS = [
   { id: 'home', label: 'Home' },
   { id: 'features', label: 'Features' },
@@ -39,7 +108,7 @@ export const NAV_SECTIONS = [
 
 ] as const;
 
-import { Home, FileText, Library, Trash2, Undo2 } from 'lucide-react';
+import { Home, FileText, Library, Trash2, Undo2, Edit3 } from 'lucide-react';
 
 export const SIDEBAR_ITEMS = [
   {
@@ -150,6 +219,21 @@ export const TRASH_CARD_ACTIONS = [
   }
 ]
 
+export const FLASHCARD_DECK_ACTIONS = [
+  {
+    label: "Edit Set",
+    icon: Edit3,
+    action: "edit",
+    variant: 'default',
+  },
+  {
+    label: "Delete Set",
+    icon: Trash2,
+    action: "delete",
+    variant: 'destructive',
+  }
+];
+
 export const MOCK_MATERIALS: MaterialItem[] = [
   {
     id: '1',
@@ -201,5 +285,26 @@ export const MOCK_TRASH_MATERIALS: MaterialItem[] = [
     sourceName: 'Legacy Source',
     dateCreated: getTimeAgo(1000),
     cardCount: 15
+  }
+];
+
+export const MOCK_STUDY_CARDS: FlashcardData[] = [
+  {
+    id: '1',
+    term: 'Mitochondria',
+    definition: 'Double-membrane-bound organelle found in most eukaryotic organisms. Generates most of the cell\'s supply of adenosine triphosphate (ATP), used as a source of chemical energy.',
+    isStarred: true
+  },
+  {
+    id: '2',
+    term: 'Nucleus',
+    definition: 'The large, membrane-bounded organelle that contains the genetic material relative to the cell in the form of multiple linear DNA molecules organized into structures called chromosomes.',
+    isStarred: false
+  },
+  {
+    id: '3',
+    term: 'Ribosome',
+    definition: 'Macromolecular machines, found within all living cells, that perform biological protein synthesis (mRNA translation).',
+    isStarred: false
   }
 ];
