@@ -1,7 +1,6 @@
 'use client';
 import { Search, Calendar, ArrowDown, Type, Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { FILTER_OPTIONS } from '@/lib/constants';
 import { Popover, PopoverContent, PopoverTrigger, PopoverPortal } from '@/components/animate-ui/primitives/radix/popover';
 
 interface SortConfig {
@@ -18,6 +17,7 @@ interface SourceToolbarProps {
     setSortConfig: (config: SortConfig | ((current: SortConfig) => SortConfig)) => void;
     isFilterOpen: boolean;
     setIsFilterOpen: (isOpen: boolean) => void;
+    filterOptions: string[];
 }
 
 export function SourceToolbar({
@@ -28,7 +28,8 @@ export function SourceToolbar({
     sortConfig,
     setSortConfig,
     isFilterOpen,
-    setIsFilterOpen
+    setIsFilterOpen,
+    filterOptions
 }: SourceToolbarProps) {
 
     const handleSort = (key: 'date' | 'title') => {
@@ -55,7 +56,7 @@ export function SourceToolbar({
             <div className="flex items-center gap-6 w-full lg:w-auto justify-between lg:justify-end">
                 {/* Filter Tabs */}
                 <div className="hidden sm:flex items-center bg-surface-subtle p-1 rounded-xl">
-                    {FILTER_OPTIONS.map(type => (
+                    {filterOptions.map(type => (
                         <button
                             key={type}
                             onClick={() => setFilterType(type)}
@@ -133,7 +134,7 @@ export function SourceToolbar({
                                 className="w-40 bg-white rounded-xl shadow-lg border border-gray-100 p-1 z-50 focus:outline-none"
                             >
                                 <div className="flex flex-col gap-0.5">
-                                    {FILTER_OPTIONS.map(type => (
+                                    {filterOptions.map(type => (
                                         <button
                                             key={type}
                                             onClick={() => { setFilterType(type); setIsFilterOpen(false); }}

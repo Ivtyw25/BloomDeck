@@ -26,3 +26,15 @@ export interface SourceDocument {
   dateAdded: string; // ISO String for sorting
   size?: string; // Optional for YouTube
 }
+
+export type MaterialType = 'FLASHCARD' | 'NOTE';
+
+export interface MaterialItem {
+  id: string;
+  title: string;
+  type: MaterialType;
+  sourceName: string;
+  dateCreated: string;
+  cardCount?: number; // Specific to Flashcards
+  preview?: string;   // Specific to Notes
+}

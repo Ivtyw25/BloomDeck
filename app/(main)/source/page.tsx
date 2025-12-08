@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import SourceCard from '@/components/ui/SourceCard';
-import { MOCK_SOURCES } from '@/lib/constants';
+import { MOCK_SOURCES, FILTER_OPTIONS } from '@/lib/constants';
 import { FileType } from '@/types/types';
 import { RippleButton, RippleButtonRipples } from '@/components/animate-ui/primitives/buttons/ripple';
 import { SourceToolbar } from '@/components/source/SourceToolbar';
@@ -65,6 +65,7 @@ export default function SourcesView() {
                 setSortConfig={setSortConfig}
                 isFilterOpen={isFilterOpen}
                 setIsFilterOpen={setIsFilterOpen}
+                filterOptions={FILTER_OPTIONS}
             />
 
             {/* Grid */}
@@ -80,13 +81,13 @@ export default function SourcesView() {
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.2 }}
                             >
-                                <SourceCard data={source} />
+                                <SourceCard data={source} type='SOURCE' />
                             </motion.div>
                         ))}
                     </AnimatePresence>
                 </motion.div>
             ) : (
-                <EmptySourceState />
+                <EmptySourceState text="No sources found" desc="We couldn't find any sources matching your search. Try adjusting your filters or uploading some sources." />
             )}
         </div>
     );

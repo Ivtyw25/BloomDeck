@@ -82,7 +82,7 @@ export default function UploadPage() {
                     <div className="bg-surface-subtle p-1 rounded-xl inline-flex items-center relative">
                         <button
                             onClick={() => { setMode('FILES'); }}
-                            className={`relative z-10 px-6 py-2 rounded-lg text-sm font-semibold transition-colors duration-350 ${mode === 'FILES'
+                            className={`cursor-pointer relative z-10 px-6 py-2 rounded-lg text-sm font-semibold transition-colors duration-350 ${mode === 'FILES'
                                 ? 'text-primary'
                                 : 'text-text-muted hover:text-text-main'
                                 }`}
@@ -99,7 +99,7 @@ export default function UploadPage() {
                         <div className="w-px h-4 bg-gray-300 mx-1"></div>
                         <button
                             onClick={() => { setMode('YOUTUBE'); }}
-                            className={`relative z-10 px-6 py-2 rounded-lg text-sm font-semibold transition-colors duration-350 ${mode === 'YOUTUBE'
+                            className={`cursor-pointer relative z-10 px-6 py-2 rounded-lg text-sm font-semibold transition-colors duration-350 ${mode === 'YOUTUBE'
                                 ? 'text-error'
                                 : 'text-text-muted hover:text-text-main'
                                 }`}
