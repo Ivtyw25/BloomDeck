@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { FileUploadArea } from '@/components/source/FileUploadArea';
 import { FileList } from '@/components/source/FileList';
 import { YoutubeUploadArea } from '@/components/source/YoutubeUploadArea';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 
 type UploadMode = 'FILES' | 'YOUTUBE';
 
@@ -79,41 +80,15 @@ export default function UploadPage() {
 
                 {/* Tabs - Centered Pill Style */}
                 <div className="flex justify-center mb-10">
-                    <div className="bg-surface-subtle p-1 rounded-xl inline-flex items-center relative">
-                        <button
-                            onClick={() => { setMode('FILES'); }}
-                            className={`cursor-pointer relative z-10 px-6 py-2 rounded-lg text-sm font-semibold transition-colors duration-350 ${mode === 'FILES'
-                                ? 'text-primary'
-                                : 'text-text-muted hover:text-text-main'
-                                }`}
-                        >
-                            {mode === 'FILES' && (
-                                <motion.div
-                                    layoutId="upload-tab"
-                                    className="absolute inset-0 bg-white shadow-sm ring-1 ring-black/5 rounded-lg -z-10"
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                />
-                            )}
-                            Upload Files
-                        </button>
-                        <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                        <button
-                            onClick={() => { setMode('YOUTUBE'); }}
-                            className={`cursor-pointer relative z-10 px-6 py-2 rounded-lg text-sm font-semibold transition-colors duration-350 ${mode === 'YOUTUBE'
-                                ? 'text-error'
-                                : 'text-text-muted hover:text-text-main'
-                                }`}
-                        >
-                            {mode === 'YOUTUBE' && (
-                                <motion.div
-                                    layoutId="upload-tab"
-                                    className="absolute inset-0 bg-white shadow-sm ring-1 ring-black/5 rounded-lg -z-10"
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                />
-                            )}
-                            YouTube Link
-                        </button>
-                    </div>
+                    <SegmentedControl
+                        options={[
+                            { label: 'Upload Files', value: 'FILES' },
+                            { label: 'YouTube Link', value: 'YOUTUBE' }
+                        ]}
+                        value={mode}
+                        onChange={(val: string) => setMode(val as UploadMode)}
+                        layoutId="upload-tab"
+                    />
                 </div>
 
                 {/* Source Name Input */}

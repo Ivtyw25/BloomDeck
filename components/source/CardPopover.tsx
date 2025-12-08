@@ -28,11 +28,11 @@ export function CardPopover({ type }: CardPopoverProps) {
                                 onClick={(e) => {
                                     e.stopPropagation(); // Prevent card click
                                     if (action.action === 'trash') {
-                                        toast.success("Source moved to trash");
+                                        toast.success("moved to trash successfully");
                                     } else if (action.action === 'restore') {
-                                        toast.success("Source restored successfully");
+                                        toast.success("restored successfully");
                                     } else if (action.action === 'delete') {
-                                        toast.success("Source permanently deleted");
+                                        toast.success("permanently deleted successfully");
                                     }
                                     console.log(`Action triggered: ${action.action}`);
                                 }}

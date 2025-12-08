@@ -1,49 +1,34 @@
 "use client"
-import { useState } from 'react';
 import { Zap } from 'lucide-react';
 import MaterialCard from '@/components/ui/MaterialCard';
 import { MOCK_MATERIALS, MATERIAL_FILTER_OPTIONS } from '@/lib/constants';
 import { SourceToolbar } from '@/components/source/SourceToolbar';
 import { EmptySourceState } from '@/components/source/EmptySourceState';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { ResourceGrid } from '@/components/layout/ResourceGrid';
+import { useResourceFilter } from '@/hooks/useResourceFilter';
 
 export default function MaterialsView() {
-    const [filterType, setFilterType] = useState('ALL');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [sortConfig, setSortConfig] = useState<{ key: 'date' | 'title'; direction: 'asc' | 'desc' }>({ key: 'date', direction: 'desc' });
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-    const filteredMaterials = MOCK_MATERIALS.filter(item => {
-        const matchesType = filterType === 'ALL' ||
-            (filterType === 'FLASHCARDS' && item.type === 'FLASHCARD') ||
-            (filterType === 'NOTES' && item.type === 'NOTE');
-
-        const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.sourceName.toLowerCase().includes(searchQuery.toLowerCase());
-
-        return matchesType && matchesSearch;
-    }).sort((a, b) => {
-        if (sortConfig.key === 'date') {
-            const dateA = new Date(a.dateCreated).getTime();
-            const dateB = new Date(b.dateCreated).getTime();
-            return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
-        } else {
-            return sortConfig.direction === 'asc'
-                ? a.title.localeCompare(b.title)
-                : b.title.localeCompare(a.title);
-        }
-    });
+    const {
+        filteredItems,
+        filterType,
+        setFilterType,
+        searchQuery,
+        setSearchQuery,
+        sortConfig,
+        setSortConfig,
+        isFilterOpen,
+        setIsFilterOpen
+    } = useResourceFilter({ items: MOCK_MATERIALS, dateField: 'dateCreated' });
 
     return (
-
         <div className="container mx-auto px-6 py-4 animate-slide-in-right max-w-7xl">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row md:items-center justify-between gap-6 mb-10">
-                <div>
-                    <h1 className="text-3xl font-heading font-bold text-text-main">My Materials</h1>
-                    <p className="text-text-muted mt-2 font-medium">Review your generated study aids</p>
-                </div>
-
+            <PageHeader
+                title="My Materials"
+                description="Review your generated study aids"
+            >
                 {/* Decorative Stat */}
                 <div className="hidden sm:flex items-center gap-4 bg-accents/20 px-3 py-2 rounded-xl border border-accents/50">
                     <div className="flex items-center gap-2">
@@ -56,8 +41,7 @@ export default function MaterialsView() {
                         </div>
                     </div>
                 </div>
-            </div>
-
+            </PageHeader>
 
             <SourceToolbar
                 searchQuery={searchQuery}
@@ -71,12 +55,11 @@ export default function MaterialsView() {
                 filterOptions={MATERIAL_FILTER_OPTIONS}
             />
 
-
             {/* Grid */}
-            {filteredMaterials.length > 0 ? (
-                <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+            {filteredItems.length > 0 ? (
+                <ResourceGrid>
                     <AnimatePresence>
-                        {filteredMaterials.map(materials => (
+                        {filteredItems.map(materials => (
                             <motion.div
                                 key={materials.id}
                                 layout
@@ -85,11 +68,11 @@ export default function MaterialsView() {
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.2 }}
                             >
-                                <MaterialCard key={materials.id} data={materials} type="SOURCE"/>
+                                <MaterialCard key={materials.id} data={materials} type="SOURCE" />
                             </motion.div>
                         ))}
                     </AnimatePresence>
-                </motion.div>
+                </ResourceGrid>
             ) : (
                 <EmptySourceState text="No materials found" desc="We couldn't find any materials matching your search." />
             )}
