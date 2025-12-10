@@ -1,5 +1,10 @@
 import { Star, Shuffle, ArrowLeft, ArrowRight, Filter, Repeat } from 'lucide-react';
 import { FlashcardData } from '@/types/types';
+import {
+    Tooltip,
+    TooltipTrigger,
+    TooltipPanel,
+} from '@/components/animate-ui/components/base/tooltip';
 
 interface StudyControlsProps {
     currentCard: FlashcardData;
@@ -37,20 +42,33 @@ export default function StudyControls({
 
             {/* Left Actions */}
             <div className="flex items-center gap-1 sm:gap-2">
-                <button
-                    onClick={onToggleStar}
-                    className={`cursor-pointer p-2 sm:p-3 transition-all hover:scale-110 active:scale-90 relative group ${currentCard.isStarred ? 'text-yellow-400' : 'text-gray-400'}`}
-                >
-                    <Star strokeWidth={3} className={`w-4 h-4 sm:w-5 sm:h-5 ${currentCard.isStarred ? 'fill-current' : ''}`} />
-                </button>
+                <Tooltip>
+                    <TooltipTrigger render={
+                        <button
+                            onClick={onToggleStar}
+                            className={`cursor-pointer p-2 sm:p-3 transition-all hover:scale-110 active:scale-90 relative group ${currentCard.isStarred ? 'text-yellow-400' : 'text-gray-400'}`}
+                        >
+                            <Star strokeWidth={3} className={`w-4 h-4 sm:w-5 sm:h-5 ${currentCard.isStarred ? 'fill-current' : ''}`} />
+                        </button>
+                    } />
+                    <TooltipPanel>
+                        <p>{currentCard.isStarred ? 'Unstar Card' : 'Star Card'}</p>
+                    </TooltipPanel>
+                </Tooltip>
 
-                <button
-                    onClick={onShuffle}
-                    className="p-2 sm:p-3 active:scale-90 hover:scale-110 cursor-pointer text-text-muted hover:text-primary transition-all"
-                    title="Shuffle Deck (R)"
-                >
-                    <Shuffle strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+                <Tooltip>
+                    <TooltipTrigger render={
+                        <button
+                            onClick={onShuffle}
+                            className="p-2 sm:p-3 active:scale-90 hover:scale-110 cursor-pointer text-text-muted hover:text-primary transition-all"
+                        >
+                            <Shuffle strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
+                    } />
+                    <TooltipPanel>
+                        <p>Shuffle Deck (R)</p>
+                    </TooltipPanel>
+                </Tooltip>
             </div>
 
             <div className="w-px h-8 bg-gray-200 sm:block" />
@@ -82,21 +100,33 @@ export default function StudyControls({
 
             {/* Right Actions (Settings) */}
             <div className="flex items-center gap-1 sm:gap-2">
-                <button
-                    onClick={onToggleStarredOnly}
-                    className={`p-2 sm:p-3 cursor-pointer active:scale-90 hover:scale-110 transition-all hover:text-primary-hover ${showStarredOnly ? 'text-primary-hover' : 'text-text-muted'}`}
-                    title="Study Starred Only"
-                >
-                    <Filter strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+                <Tooltip>
+                    <TooltipTrigger render={
+                        <button
+                            onClick={onToggleStarredOnly}
+                            className={`p-2 sm:p-3 cursor-pointer active:scale-90 hover:scale-110 transition-all hover:text-primary-hover ${showStarredOnly ? 'text-primary-hover' : 'text-text-muted'}`}
+                        >
+                            <Filter strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
+                    } />
+                    <TooltipPanel>
+                        <p>Study Starred Only</p>
+                    </TooltipPanel>
+                </Tooltip>
 
-                <button
-                    onClick={onToggleMode}
-                    className={`p-2 sm:p-3 cursor-pointer active:scale-90 hover:scale-110 transition-all hover:text-primary-hover ${isTermMode ? 'text-primary-hover' : 'text-text-muted'}`}
-                    title={`Current: ${isTermMode ? 'Term -> Def' : 'Def -> Term'} (T)`}
-                >
-                    <Repeat strokeWidth={3} className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-500 ${!isTermMode ? 'rotate-180' : ''}`} />
-                </button>
+                <Tooltip>
+                    <TooltipTrigger render={
+                        <button
+                            onClick={onToggleMode}
+                            className={`p-2 sm:p-3 cursor-pointer active:scale-90 hover:scale-110 transition-all hover:text-primary-hover ${isTermMode ? 'text-primary-hover' : 'text-text-muted'}`}
+                        >
+                            <Repeat strokeWidth={3} className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-500 ${!isTermMode ? 'rotate-180' : ''}`} />
+                        </button>
+                    } />
+                    <TooltipPanel>
+                        <p>Flip Term & Definitions (T)</p>
+                    </TooltipPanel>
+                </Tooltip>
             </div>
         </div>
     );
