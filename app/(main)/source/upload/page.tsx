@@ -162,10 +162,12 @@ export default function UploadPage() {
         <div className="container px-6 py-4 min-h-screen animate-slide-in-right max-w-full">
             {/* Back Link */}
             <button
-                onClick={() => router.back()}
-                className="cursor-pointer mb-8 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium group"
+                onClick={() => !isSubmitting && router.back()}
+                disabled={isSubmitting}
+                className={`cursor-pointer mb-8 flex items-center gap-2 text-gray-500 transition-colors text-sm font-medium group ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:text-gray-900'
+                    }`}
             >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft className={`w-4 h-4 transition-transform ${isSubmitting ? '' : 'group-hover:-translate-x-1'}`} />
                 Back
             </button>
 
@@ -222,7 +224,7 @@ export default function UploadPage() {
                             />
 
                             {/* File List */}
-                            <FileList files={files} onRemove={removeFile} />
+                            <FileList files={files} onRemove={removeFile} disabled={isSubmitting} />
                         </motion.div>
                     ) : (
                         <motion.div

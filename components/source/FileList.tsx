@@ -4,9 +4,10 @@ import { X, FileText, Presentation, FileCode, File } from 'lucide-react';
 interface FileListProps {
     files: File[];
     onRemove: (index: number) => void;
+    disabled?: boolean;
 }
 
-export function FileList({ files, onRemove }: FileListProps) {
+export function FileList({ files, onRemove, disabled }: FileListProps) {
     const getFileDetails = (fileName: string) => {
         const extension = fileName.split('.').pop()?.toLowerCase();
 
@@ -62,8 +63,9 @@ export function FileList({ files, onRemove }: FileListProps) {
                                 </div>
                             </div>
                             <button
-                                onClick={() => onRemove(idx)}
-                                className="cursor-pointer text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-all"
+                                onClick={() => !disabled && onRemove(idx)}
+                                disabled={disabled}
+                                className={`cursor-pointer text-gray-400 p-2 rounded-lg transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-red-500 hover:bg-red-50'}`}
                             >
                                 <X className="w-5 h-5" />
                             </button>
