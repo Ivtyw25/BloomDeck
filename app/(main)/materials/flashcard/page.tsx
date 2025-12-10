@@ -75,6 +75,8 @@ export default function FlashcardStudyView({ deckId, onBack }: FlashcardStudyVie
                 isFullScreen={isFullScreen}
                 onFlip={actions.handleFlip}
                 onToggleFullScreen={actions.setIsFullScreen}
+                onNext={actions.handleNext}
+                onPrev={actions.handlePrev}
             />
 
             <div className="relative -mt-4 z-20 px-4 md:px-0 mb-4 flex justify-center">

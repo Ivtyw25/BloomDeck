@@ -51,16 +51,18 @@ export default function MaterialCard({ data, type }: MaterialCardProps) {
             <div className="flex-1 mb-4">
                 <h3 className="font-heading font-bold text-lg text-text-main mb-2 line-clamp-1">{data.title}</h3>
 
-                {isFlashcard ? (
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-primary text-xs font-medium rounded-full">
-                        <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                        {data.cardCount} Cards
-                    </div>
-                ) : (
-                    <p className="text-sm text-text-muted line-clamp-3 leading-relaxed">
-                        {data.preview}
-                    </p>
-                )}
+                <div className="min-h-18">
+                    {isFlashcard ? (
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-primary text-xs font-medium rounded-full">
+                            <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+                            {data.cardCount} Cards
+                        </div>
+                    ) : (
+                        <p className="text-sm text-text-muted line-clamp-3 leading-relaxed">
+                            {data.preview}
+                        </p>
+                    )}
+                </div>
             </div>
 
             {/* Footer Section */}

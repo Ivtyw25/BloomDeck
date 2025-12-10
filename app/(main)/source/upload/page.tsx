@@ -8,6 +8,9 @@ import { FileUploadArea } from '@/components/source/FileUploadArea';
 import { FileList } from '@/components/source/FileList';
 import { YoutubeUploadArea } from '@/components/source/YoutubeUploadArea';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { getTitleFromUrl } from '@/services/youtube';
+import { createSource } from '@/services/source';
+import { uploadFileToS3 } from '@/services/upload';
 
 type UploadMode = 'FILES' | 'YOUTUBE';
 
@@ -17,6 +20,7 @@ export default function UploadPage() {
     const [sourceName, setSourceName] = useState('');
     const [files, setFiles] = useState<File[]>([]);
     const [youtubeLink, setYoutubeLink] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const addFiles = (newFiles: File[]) => {
         if (files.length + newFiles.length > 2) {
@@ -30,9 +34,9 @@ export default function UploadPage() {
         setFiles(prev => prev.filter((_, i) => i !== index));
     };
 
-    const getPlaceholderName = () => {
+    const getPlaceholderName = async () => {
         if (mode === 'FILES' && files.length > 0) return files[0].name;
-        if (mode === 'YOUTUBE' && youtubeLink) return "YouTube Video Source";
+        if (mode === 'YOUTUBE' && youtubeLink) return await getTitleFromUrl(youtubeLink);
         return "Untitled Source";
     };
 
@@ -41,22 +45,117 @@ export default function UploadPage() {
         return regex.test(url);
     };
 
-    const handleSubmit = () => {
-        const finalName = sourceName || getPlaceholderName();
+    const formatBytes = (bytes: number, decimals = 2) => {
+        if (!+bytes) return '0 bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['bytes', 'kb', 'mb', 'gb'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+    };
 
-        if (mode === 'YOUTUBE' && !isValidYoutubeUrl(youtubeLink)) {
-            toast.error("Please enter a valid YouTube URL");
-            return;
+    const normalizeFileType = (fileName: string) => {
+        const ext = fileName.split('.').pop()?.toUpperCase() || 'UNKNOWN';
+        if (['PPT', 'PPTX'].includes(ext)) return 'PPT';
+        if (['DOC', 'DOCX'].includes(ext)) return 'DOCX';
+        if (ext === 'PDF') return 'PDF';
+        return ext;
+    };
+
+    const handleSubmit = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
+        try {
+            if (mode === 'YOUTUBE' && !isValidYoutubeUrl(youtubeLink)) {
+                toast.error("Please enter a valid YouTube URL");
+                setIsSubmitting(false);
+                return;
+            }
+
+            const finalName = sourceName || await getPlaceholderName()
+
+            if (mode === 'YOUTUBE') {
+
+                await createSource({
+                    title: finalName || "Untitled Source",
+                    type: 'YOUTUBE',
+                    youtube_url: youtubeLink,
+                    file_url: null,
+                    containedTypes: null,
+                    size: null
+                });
+
+            } else {
+                if (files.length === 0) {
+                    toast.error("Please select at least one file");
+                    setIsSubmitting(false);
+                    return;
+                }
+
+                // Check total file size (limit 50MB)
+                const totalBytes = files.reduce((acc, file) => acc + file.size, 0);
+                const MAX_SIZE_MB = 50;
+                if (totalBytes > MAX_SIZE_MB * 1024 * 1024) {
+                    toast.error(`Total file size must be less than ${MAX_SIZE_MB}MB`);
+                    setIsSubmitting(false);
+                    return;
+                }
+
+                // Upload files and gather metadata
+                const uploadedUrls: string[] = [];
+                let totalSize = 0;
+                const typesSet = new Set<string>();
+
+                for (const file of files) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    try {
+                        const url = await uploadFileToS3(formData);
+                        uploadedUrls.push(url);
+                        totalSize += file.size;
+                        typesSet.add(normalizeFileType(file.name));
+                    } catch (uploadError) {
+                        console.error(`Failed to upload file ${file.name}:`, uploadError);
+                        toast.error(`Failed to upload ${file.name}`);
+                        setIsSubmitting(false);
+                        return;
+                    }
+                }
+
+                // Determine final type and containedTypes
+                let finalType = '';
+                let containedTypes: string[] | null = null;
+                const uniqueTypes = Array.from(typesSet);
+
+                if (files.length > 1) {
+                    finalType = 'MIXED';
+                    containedTypes = uniqueTypes;
+                } else if (files.length === 1) {
+                    finalType = uniqueTypes[0];
+                    containedTypes = null;
+                }
+
+                await createSource({
+                    title: finalName || "Untitled Source",
+                    type: finalType,
+                    containedTypes: containedTypes,
+                    size: formatBytes(totalSize),
+                    file_url: uploadedUrls,
+                    youtube_url: null
+                });
+            }
+
+            toast.success(`Successfully uploaded ${mode === 'FILES' ? 'files' : 'YouTube link'}!`);
+            router.back();
+
+        } catch (error: any) {
+            console.error("Submission error:", error);
+            toast.error(error.message || "Failed to create source");
+        } finally {
+            setIsSubmitting(false);
         }
-
-        console.log("Submitting:", {
-            name: finalName,
-            mode,
-            data: mode === 'FILES' ? files : youtubeLink
-        });
-
-        toast.success(`Successfully uploaded ${mode === 'FILES' ? 'files' : 'YouTube link'}!`);
-        router.back();
     };
 
     return (
@@ -83,7 +182,7 @@ export default function UploadPage() {
                     <SegmentedControl
                         options={[
                             { label: 'Upload Files', value: 'FILES' },
-                            { label: 'YouTube Link', value: 'YOUTUBE' }
+                            { label: 'YouTube Link', value: 'YOUTUBE', activeClass: 'text-red-500' }
                         ]}
                         value={mode}
                         onChange={(val: string) => setMode(val as UploadMode)}
@@ -142,10 +241,15 @@ export default function UploadPage() {
                 <div className="mt-10 flex justify-end">
                     <button
                         onClick={handleSubmit}
-                        disabled={(mode === 'FILES' && files.length === 0) || (mode === 'YOUTUBE' && !youtubeLink)}
-                        className="px-10 py-3.5 bg-green-300 text-gray-50 font-semibold rounded-xl hover:bg-green-400 transition-all shadow-md shadow-[#b5d365]/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none active:scale-95"
+                        disabled={isSubmitting || (mode === 'FILES' && (files.length === 0 || files.length > 2)) || (mode === 'YOUTUBE' && !youtubeLink)}
+                        className="cursor-pointer px-10 py-3.5 bg-green-300 text-gray-50 font-semibold rounded-xl hover:bg-green-400 transition-all shadow-md shadow-[#b5d365]/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none active:scale-95 flex items-center gap-2"
                     >
-                        Create Source
+                        {isSubmitting ? (
+                            <>
+                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Creating...
+                            </>
+                        ) : 'Create Source'}
                     </button>
                 </div>
             </div>

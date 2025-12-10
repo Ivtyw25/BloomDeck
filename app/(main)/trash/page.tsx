@@ -1,6 +1,6 @@
 "use client"
-import { MOCK_TRASH, TRASH_FILTER_OPTIONS, MOCK_TRASH_MATERIALS, MATERIAL_FILTER_OPTIONS } from '@/lib/constants';
-import { useState } from 'react';
+import { TRASH_FILTER_OPTIONS, MOCK_TRASH_MATERIALS, MATERIAL_FILTER_OPTIONS } from '@/lib/constants';
+import { useState, useEffect } from 'react';
 import { SourceToolbar } from '@/components/source/SourceToolbar';
 import { AnimatePresence, motion } from 'framer-motion';
 import SourceCard from '@/components/ui/SourceCard';
@@ -10,11 +10,46 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { ResourceGrid } from '@/components/layout/ResourceGrid';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useResourceFilter } from '@/hooks/useResourceFilter';
+import { getSources } from '@/services/source';
+import { SourceDocument } from '@/types/types';
+import { supabase } from '@/lib/supabase';
+import { Loader2 } from 'lucide-react';
 
 export default function TrashPage() {
     const [viewMode, setViewMode] = useState<'SOURCE' | 'MATERIAL'>('SOURCE');
+    const [sources, setSources] = useState<SourceDocument[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const items = viewMode === 'SOURCE' ? MOCK_TRASH : MOCK_TRASH_MATERIALS;
+    useEffect(() => {
+        const fetchTrash = async () => {
+            try {
+                const data = await getSources(true);
+                setSources(data);
+            } catch (error) {
+                console.error("Failed to fetch trash:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTrash();
+
+        const channel = supabase
+            .channel('realtime:trash_sources')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'Sources-Table',
+            }, () => {
+                fetchTrash();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
+
+    const items = viewMode === 'SOURCE' ? sources : MOCK_TRASH_MATERIALS;
     const dateField = viewMode === 'SOURCE' ? 'dateAdded' : 'dateCreated';
     const filterOptions = viewMode === 'SOURCE' ? TRASH_FILTER_OPTIONS : MATERIAL_FILTER_OPTIONS;
 
@@ -66,7 +101,11 @@ export default function TrashPage() {
                 filterOptions={filterOptions}
             />
 
-            {filteredItems.length > 0 ? (
+            {loading ? (
+                <div className="flex items-center justify-center py-32">
+                    <Loader2 className="w-8 h-8 md:w-12 md:h-12 text-primary animate-spin" />
+                </div>
+            ) : filteredItems.length > 0 ? (
                 <ResourceGrid
                     className={viewMode === 'MATERIAL' ? 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-3'}
                 >

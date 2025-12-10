@@ -12,7 +12,7 @@ export function YoutubeUploadArea({ link, onChange }: YoutubeUploadAreaProps) {
                 <div className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center">
                     <YouTubeIcon className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-semibold font-heading text-gray-900">YouTube Video</h3>
+                <h3 className="text-lg font-semibold font-heading text-text-main">YouTube Video</h3>
             </div>
             <input
                 type="text"

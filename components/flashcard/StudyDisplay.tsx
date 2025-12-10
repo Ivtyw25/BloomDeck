@@ -13,6 +13,8 @@ interface StudyDisplayProps {
     isFullScreen: boolean;
     onFlip: () => void;
     onToggleFullScreen: (isFull: boolean) => void;
+    onNext: () => void;
+    onPrev: () => void;
     children?: React.ReactNode;
 }
 
@@ -26,6 +28,8 @@ export default function StudyDisplay({
     isFullScreen,
     onFlip,
     onToggleFullScreen,
+    onNext,
+    onPrev,
     children
 }: StudyDisplayProps) {
     if (!currentCard) return null;
@@ -91,7 +95,23 @@ export default function StudyDisplay({
                     )}
                 </AnimatePresence>
 
-                <motion.div layout className={`w-full h-full ${isFullScreen ? 'max-w-5xl mx-auto' : ''}`}>
+                <motion.div
+                    layout
+                    className={`w-full h-full ${isFullScreen ? 'max-w-5xl mx-auto' : ''}`}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={(e, { offset }) => {
+                        const swipeConfidenceThreshold = 100;
+
+
+                        if (offset.x < -swipeConfidenceThreshold) {
+                            onNext();
+                        } else if (offset.x > swipeConfidenceThreshold) {
+                            onPrev();
+                        }
+                    }}
+                >
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={currentCard.id}
@@ -99,7 +119,7 @@ export default function StudyDisplay({
                             animate={{ opacity: 1, scale: 1, x: 0 }}
                             exit={{ opacity: 0, scale: 0.9, x: -20 }}
                             transition={{ duration: 0.2 }}
-                            className="w-full h-full"
+                            className="w-full h-full sm:cursor-grab sm:active:cursor-grabbing"
                         >
                             <Flashcard
                                 data={displayCardData}

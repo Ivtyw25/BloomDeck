@@ -28,7 +28,15 @@ export function FileUploadArea({ onFilesSelected, maxFiles = 2, currentFileCount
         onFilesSelected(droppedFiles);
     };
 
-    if (currentFileCount >= maxFiles) return null;
+    if (currentFileCount >= maxFiles) {
+        return (
+            <div className="border-2 border-dashed border-gray-200 rounded-[32px] p-8 text-center bg-gray-50/50">
+                <p className="text-sm font-medium text-text-muted">
+                    Maximum {maxFiles} files only
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div
@@ -71,7 +79,7 @@ export function FileUploadArea({ onFilesSelected, maxFiles = 2, currentFileCount
                 >
                     Browse Files
                 </label>
-                <RippleButtonRipples/>
+                <RippleButtonRipples />
             </RippleButton>
         </div>
     );

@@ -1,6 +1,9 @@
 import { HeroFlashcardData, FlashcardData, FlashcardType, MaterialItem } from '@/types/types';
 import { SourceDocument } from '@/types/types';
+// for sidebar
+import { Home, FileText, Library, Trash2, Undo2, Edit3 } from 'lucide-react';
 
+// for hero section displaying only
 export const HERO_FLASHCARDS: HeroFlashcardData[] = [
   {
     id: '1',
@@ -101,6 +104,7 @@ export const FLASHCARDS: FlashcardData[] = [
   }
 ];
 
+// for nav bar
 export const NAV_SECTIONS = [
   { id: 'home', label: 'Home' },
   { id: 'features', label: 'Features' },
@@ -108,8 +112,7 @@ export const NAV_SECTIONS = [
 
 ] as const;
 
-import { Home, FileText, Library, Trash2, Undo2, Edit3 } from 'lucide-react';
-
+// for sidebar
 export const SIDEBAR_ITEMS = [
   {
     title: 'Dashboard',
@@ -139,37 +142,6 @@ const getTimeAgo = (minutes: number) => {
   date.setMinutes(date.getMinutes() - minutes);
   return date.toISOString();
 };
-
-export const MOCK_SOURCES: SourceDocument[] = [
-  {
-    id: '1',
-    title: 'Intro to Cellular Biology',
-    type: 'PDF',
-    dateAdded: getTimeAgo(50), // 50 mins ago
-    size: '2.4 MB'
-  },
-  {
-    id: '2',
-    title: 'History & Geography Prep',
-    type: 'MIXED',
-    containedTypes: ['PPT', 'DOCX'],
-    dateAdded: getTimeAgo(120), // 2 hours ago
-    size: '15.5 MB'
-  },
-  {
-    id: '3',
-    title: 'React Hooks Deep Dive',
-    type: 'YOUTUBE',
-    dateAdded: getTimeAgo(5), // 5 mins ago
-  },
-  {
-    id: '4',
-    title: 'Organic Chemistry Notes',
-    type: 'DOCX',
-    dateAdded: getTimeAgo(2880), // 2 days ago
-    size: '500 KB'
-  }
-];
 
 export const MOCK_TRASH: SourceDocument[] = [
   {

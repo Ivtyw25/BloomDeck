@@ -106,7 +106,7 @@ export default function SourceCard({ data, type }: SourceCardProps) {
                     </div>
                 </div>
 
-                <CardPopover type={type} />
+                <CardPopover type={type} id={data.id} title={data.title} />
             </div>
         </div>
     );

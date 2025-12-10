@@ -74,7 +74,7 @@ export default function MaterialsView() {
                     </AnimatePresence>
                 </ResourceGrid>
             ) : (
-                <EmptySourceState text="No materials found" desc="We couldn't find any materials matching your search." />
+                <EmptySourceState text="No materials found" desc="We couldn't find any materials matching your search. You may create your materials from sources." />
             )}
         </div>
     );

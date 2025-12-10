@@ -1,7 +1,12 @@
 "use client"
 import Link from 'next/link';
-import { Upload } from 'lucide-react';
-import { MOCK_SOURCES, FILTER_OPTIONS } from '@/lib/constants';
+import { Upload, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { SourceDocument } from '@/app/types/types';
+import { getSources } from '@/services/source';
+import { FILTER_OPTIONS } from '@/lib/constants';
 import { SourceToolbar } from '@/components/source/SourceToolbar';
 import { AnimatePresence, motion } from 'framer-motion';
 import SourceCard from '@/components/ui/SourceCard';
@@ -11,6 +16,41 @@ import { ResourceGrid } from '@/components/layout/ResourceGrid';
 import { useResourceFilter } from '@/hooks/useResourceFilter';
 
 export default function SourcePage() {
+    const [sources, setSources] = useState<SourceDocument[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSources = async () => {
+            try {
+                const data = await getSources(false);
+                setSources(data);
+            } catch (error) {
+                console.error("Failed to fetch sources:", error);
+                toast.error("Failed to load sources");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSources();
+
+        // Subscribe to real-time changes
+        const channel = supabase
+            .channel('realtime:active_sources')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'Sources-Table'
+            }, (payload) => {
+                fetchSources();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
+
     const {
         filteredItems,
         filterType,
@@ -21,7 +61,7 @@ export default function SourcePage() {
         setSortConfig,
         isFilterOpen,
         setIsFilterOpen
-    } = useResourceFilter({ items: MOCK_SOURCES, dateField: 'dateAdded' });
+    } = useResourceFilter({ items: sources, dateField: 'dateAdded' });
 
     return (
         <div className="container mx-auto px-6 py-4 animate-slide-in-right max-w-7xl">
@@ -51,7 +91,11 @@ export default function SourcePage() {
                 filterOptions={FILTER_OPTIONS}
             />
 
-            {filteredItems.length > 0 ? (
+            {loading ? (
+                <div className="flex items-center justify-center py-32">
+                    <Loader2 className="w-8 h-8 md:w-12 md:h-12 text-primary animate-spin" />
+                </div>
+            ) : filteredItems.length > 0 ? (
                 <ResourceGrid>
                     <AnimatePresence>
                         {filteredItems.map(source => (
