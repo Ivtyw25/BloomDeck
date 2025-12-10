@@ -17,6 +17,7 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
     const router = useRouter();
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showTrashConfirm, setShowTrashConfirm] = useState(false);
     const [open, setOpen] = useState(false);
 
     const handleAction = async (action: string) => {
@@ -27,21 +28,40 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
             return;
         }
 
-        const isTrash = action === 'trash';
+        if (action === 'trash') {
+            setShowTrashConfirm(true);
+            return;
+        }
+
         const isRestore = action === 'restore';
 
-        if (!isTrash && !isRestore) return;
+        if (!isRestore) return;
 
-        const promise = toggleTrashSource(id, isTrash);
+        const promise = toggleTrashSource(id, false);
 
         toast.promise(promise, {
-            loading: isTrash ? 'Moving to trash...' : 'Restoring...',
+            loading: 'Restoring...',
             success: () => {
                 router.refresh();
-                return isTrash ? 'Moved to trash' : 'Restored successfully';
+                return 'Restored successfully';
             },
-            error: isTrash ? 'Failed to move to trash' : 'Failed to restore'
+            error: 'Failed to restore'
         });
+    };
+
+    const onConfirmTrash = async () => {
+        setIsActionLoading(true);
+        try {
+            await toggleTrashSource(id, true);
+            toast.success("Moved to trash");
+            router.refresh();
+            setShowTrashConfirm(false);
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to move to trash");
+        } finally {
+            setIsActionLoading(false);
+        }
     };
 
     const onConfirmDelete = async () => {
@@ -81,7 +101,7 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
                                         e.stopPropagation();
                                         handleAction(action.action);
                                     }}
-                                    className={`flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg w-full text-left transition-colors ${action.variant === 'destructive'
+                                    className={`cursor-pointer flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg w-full text-left transition-colors ${action.variant === 'destructive'
                                         ? 'text-red-500 hover:bg-red-50'
                                         : 'text-gray-700 hover:bg-gray-50'
                                         }`}
@@ -96,6 +116,17 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
             </Popover>
 
             <ConfirmationDialog
+                isOpen={showTrashConfirm}
+                onClose={() => setShowTrashConfirm(false)}
+                onConfirm={onConfirmTrash}
+                title="Move to Trash?"
+                description={`Are you sure you want to move "${title}" to trash? Items in trash will be permanently deleted after 30 days.`}
+                confirmText="Move to Trash"
+                isLoading={isActionLoading}
+                loadingText="Trashing..."
+            />
+
+            <ConfirmationDialog
                 isOpen={showDeleteConfirm}
                 onClose={() => setShowDeleteConfirm(false)}
                 onConfirm={onConfirmDelete}
@@ -103,6 +134,7 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
                 description={`Are you sure you want to delete "${title}"? This action cannot be undone and will permanently delete all associated files.`}
                 confirmText="Delete Forever"
                 isLoading={isActionLoading}
+                loadingText="Deleting..."
             />
         </>
     );

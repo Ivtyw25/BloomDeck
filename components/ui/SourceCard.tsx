@@ -101,7 +101,11 @@ export default function SourceCard({ data, type }: SourceCardProps) {
                             )}
 
                             <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                            <span suppressHydrationWarning>{getTimeAgoString(data.dateAdded)}</span>
+                            <span suppressHydrationWarning>
+                                {type === 'TRASH' && data.trashDate
+                                    ? `trashed ${getTimeAgoString(data.trashDate)}`
+                                    : `created ${getTimeAgoString(data.dateAdded)}`}
+                            </span>
                         </div>
                     </div>
                 </div>

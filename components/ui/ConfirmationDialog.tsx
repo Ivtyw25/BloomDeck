@@ -20,6 +20,7 @@ interface ConfirmationDialogProps {
     confirmText?: string;
     cancelText?: string;
     isLoading?: boolean;
+    loadingText?: string;
 }
 
 export function ConfirmationDialog({
@@ -30,7 +31,8 @@ export function ConfirmationDialog({
     description,
     confirmText = 'Confirm',
     cancelText = 'Cancel',
-    isLoading = false
+    isLoading = false,
+    loadingText
 }: ConfirmationDialogProps) {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && !isLoading && onClose()}>
@@ -65,7 +67,7 @@ export function ConfirmationDialog({
                             {isLoading ? (
                                 <>
                                     <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    <span>Deleting...</span>
+                                    <span>{loadingText || 'Deleting...'}</span>
                                 </>
                             ) : confirmText}
                         </button>

@@ -68,7 +68,8 @@ export async function getSources(inTrash: boolean = false): Promise<SourceDocume
         type: item.type as FileType,
         containedTypes: item.type === 'MIXED' ? (item.containedTypes as FileType[]) : undefined,
         dateAdded: item.created_at,
-        size: item.type !== 'YOUTUBE' ? item.size : undefined
+        size: item.type !== 'YOUTUBE' ? item.size : undefined,
+        trashDate: item.trashed_at
     }));
 }
 
