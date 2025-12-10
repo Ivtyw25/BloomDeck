@@ -43,7 +43,7 @@ export default function MaterialCard({ data, type }: MaterialCardProps) {
                         <Clock className="w-3 h-3" />
                         {getTimeAgoString(data.dateCreated)}
                     </div>
-                    <CardPopover type={type} />
+                    <CardPopover type={type} id={data.id} title={data.title} />
                 </div>
             </div>
 
