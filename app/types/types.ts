@@ -1,10 +1,5 @@
 // for hero section flashcards view
-export enum FlashcardType {
-  TEXT = 'TEXT',
-  MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
-  TRUE_FALSE = 'TRUE_FALSE',
-  CODE_SNIPPET = 'CODE_SNIPPET'
-}
+export type FlashcardType = 'TEXT' | 'MULTIPLE_CHOICE' | 'TRUE_FALSE' | 'CODE_SNIPPET';
 
 export interface HeroFlashcardData {
   id: string;
@@ -14,12 +9,16 @@ export interface HeroFlashcardData {
   difficulty: 'Easy' | 'Medium' | 'Hard';
 }
 
-export interface FlashcardData {
+export interface Flashcard {
   id: string;
   term: string;
   definition: string;
-  isStarred?: boolean;
+  isStarred: boolean;
+  materialsFk: string;
 }
+
+// Alias for backwards compatibility if needed, or just replace usages
+export type FlashcardData = Flashcard;
 
 // type of file supported
 export type FileType = 'PDF' | 'DOCX' | 'PPT' | 'YOUTUBE' | 'MIXED';
@@ -40,8 +39,9 @@ export interface MaterialItem {
   id: string;
   title: string;
   type: MaterialType;
-  sourceName: string;
-  dateCreated: string;
-  cardCount?: number; // Specific to Flashcards
-  preview?: string;   // Specific to Notes
+  cardCount?: number;
+  inTrash: boolean;
+  trashedAt?: string | null;
+  createdAt: string;
+  content?: string;
 }

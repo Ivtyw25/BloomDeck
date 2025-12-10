@@ -1,5 +1,5 @@
 "use client"
-import { TRASH_FILTER_OPTIONS, MOCK_TRASH_MATERIALS, MATERIAL_FILTER_OPTIONS } from '@/lib/constants';
+import { TRASH_FILTER_OPTIONS, MATERIAL_FILTER_OPTIONS } from '@/lib/constants';
 import { useState, useEffect } from 'react';
 import { SourceToolbar } from '@/components/source/SourceToolbar';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -11,20 +11,26 @@ import { ResourceGrid } from '@/components/layout/ResourceGrid';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useResourceFilter } from '@/hooks/useResourceFilter';
 import { getSources } from '@/services/source';
-import { SourceDocument } from '@/types/types';
+import { getMaterials } from '@/services/material';
+import { SourceDocument, MaterialItem } from '@/types/types';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
 
 export default function TrashPage() {
     const [viewMode, setViewMode] = useState<'SOURCE' | 'MATERIAL'>('SOURCE');
     const [sources, setSources] = useState<SourceDocument[]>([]);
+    const [materials, setMaterials] = useState<MaterialItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchTrash = async () => {
             try {
-                const data = await getSources(true);
-                setSources(data);
+                const [sourcesData, materialsData] = await Promise.all([
+                    getSources(true),
+                    getMaterials(true)
+                ]);
+                setSources(sourcesData);
+                setMaterials(materialsData);
             } catch (error) {
                 console.error("Failed to fetch trash:", error);
             } finally {
@@ -33,24 +39,38 @@ export default function TrashPage() {
         };
         fetchTrash();
 
-        const channel = supabase
+        const sourceChannel = supabase
             .channel('realtime:trash_sources')
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
                 table: 'Sources-Table',
+                filter: 'inTrash=eq.true' // Only listen for trash items? Actually generic changes might affect list (e.g. restoring)
+            }, () => {
+                fetchTrash();
+            })
+            .subscribe();
+
+        const materialChannel = supabase
+            .channel('realtime:trash_materials')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'Materials-Table',
+                // Note: listening to all events is safer to catch moves to/from trash
             }, () => {
                 fetchTrash();
             })
             .subscribe();
 
         return () => {
-            supabase.removeChannel(channel);
+            supabase.removeChannel(sourceChannel);
+            supabase.removeChannel(materialChannel);
         };
     }, []);
 
-    const items = viewMode === 'SOURCE' ? sources : MOCK_TRASH_MATERIALS;
-    const dateField = viewMode === 'SOURCE' ? 'dateAdded' : 'dateCreated';
+    const items = viewMode === 'SOURCE' ? sources : materials;
+    const dateField = viewMode === 'SOURCE' ? 'dateAdded' : 'createdAt';
     const filterOptions = viewMode === 'SOURCE' ? TRASH_FILTER_OPTIONS : MATERIAL_FILTER_OPTIONS;
 
     const {

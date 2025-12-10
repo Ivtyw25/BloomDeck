@@ -1,27 +1,32 @@
 import { useState, useCallback, useEffect } from 'react';
-import { FLASHCARDS } from '@/lib/constants';
+import { getFlashcards, updateFlashcardStar, updateAllFlashcardsStar, updateFlashcardContent } from '@/services/material';
 import { FlashcardData } from '@/types/types';
 
 export const useFlashcardStudy = (deckId: string) => {
-    // In a real app, this would fetch based on deckId.
-    // Assuming FLASHCARDS is the source for now.
-
-    const [deck, setDeck] = useState<FlashcardData[]>([...FLASHCARDS]);
+    const [deck, setDeck] = useState<FlashcardData[]>([]);
+    const [loading, setLoading] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [showStarredOnly, setShowStarredOnly] = useState(false);
-    const [isTermMode, setIsTermMode] = useState(true); // True = Term front, False = Def front
+    const [isTermMode, setIsTermMode] = useState(true);
     const [isFullScreen, setIsFullScreen] = useState(false);
-
-    // Pagination for terms list needs to be handled by the list component or passed down
-    // But since the original page had it, let's keep list state here or in the list component.
-    // The user wants separation of concerns. List state belongs to List component ideally, 
-    // unless the parent needs to control it. Here parent doesn't seem to need it.
-    // I will move list pagination state to TermList component.
-
-    // Edit States
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<{ term: string, definition: string }>({ term: '', definition: '' });
+
+    // Fetch Data
+    useEffect(() => {
+        const fetchDeck = async () => {
+            try {
+                const data = await getFlashcards(deckId);
+                setDeck(data);
+            } catch (e) {
+                console.error("Failed to fetch flashcards:", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (deckId) fetchDeck();
+    }, [deckId]);
 
     // Derived state
     const activeDeck = showStarredOnly ? deck.filter(c => c.isStarred) : deck;
@@ -31,14 +36,14 @@ export const useFlashcardStudy = (deckId: string) => {
     const handleNext = useCallback(() => {
         if (currentIndex < activeDeck.length - 1) {
             setIsFlipped(false);
-            setTimeout(() => setCurrentIndex(prev => prev + 1), 150);
+            setTimeout(() => setCurrentIndex(prev => prev + 1), 100);
         }
     }, [currentIndex, activeDeck.length]);
 
     const handlePrev = useCallback(() => {
         if (currentIndex > 0) {
             setIsFlipped(false);
-            setTimeout(() => setCurrentIndex(prev => prev - 1), 150);
+            setTimeout(() => setCurrentIndex(prev => prev - 1), 100);
         }
     }, [currentIndex]);
 
@@ -46,18 +51,39 @@ export const useFlashcardStudy = (deckId: string) => {
         setIsFlipped(prev => !prev);
     }, []);
 
-    const toggleStar = useCallback((id: string) => {
+    const toggleStar = useCallback(async (id: string) => {
+        const card = deck.find(c => c.id === id);
+        if (!card) return;
+        const newStatus = !card.isStarred;
+
+        // Optimistic update
         const newDeck = deck.map(c =>
-            c.id === id ? { ...c, isStarred: !c.isStarred } : c
+            c.id === id ? { ...c, isStarred: newStatus } : c
         );
         setDeck(newDeck);
+
+        try {
+            await updateFlashcardStar(id, newStatus);
+        } catch (e) {
+            console.error("Failed to update star:", e);
+            // Revert
+            setDeck(deck);
+        }
     }, [deck]);
 
-    const handleToggleAllStars = useCallback(() => {
+    const handleToggleAllStars = useCallback(async () => {
         const allStarred = deck.every(c => c.isStarred);
-        const newDeck = deck.map(c => ({ ...c, isStarred: !allStarred }));
+        const newStatus = !allStarred;
+        const newDeck = deck.map(c => ({ ...c, isStarred: newStatus }));
         setDeck(newDeck);
-    }, [deck]);
+
+        try {
+            await updateAllFlashcardsStar(deckId, newStatus);
+        } catch (e) {
+            console.error("Failed to update all stars:", e);
+            setDeck(deck);
+        }
+    }, [deck, deckId]);
 
     const handleShuffle = useCallback(() => {
         const shuffled = [...deck].sort(() => Math.random() - 0.5);
@@ -77,10 +103,20 @@ export const useFlashcardStudy = (deckId: string) => {
         setEditForm({ term: card.term, definition: card.definition });
     };
 
-    const saveEditing = () => {
+    const saveEditing = async () => {
         if (!editingId) return;
-        setDeck(prev => prev.map(c => c.id === editingId ? { ...c, term: editForm.term, definition: editForm.definition } : c));
+        const previousDeck = deck;
+        const updatedDeck = deck.map(c => c.id === editingId ? { ...c, term: editForm.term, definition: editForm.definition } : c);
+
+        setDeck(updatedDeck);
         setEditingId(null);
+
+        try {
+            await updateFlashcardContent(editingId, editForm.term, editForm.definition);
+        } catch (e) {
+            console.error("Failed to update content:", e);
+            setDeck(previousDeck);
+        }
     };
 
     const cancelEditing = () => {
@@ -117,8 +153,11 @@ export const useFlashcardStudy = (deckId: string) => {
                 case 'KeyT':
                     toggleMode();
                     break;
-                case 'Escape':
-                    if (isFullScreen) setIsFullScreen(false);
+                case 'KeyQ':
+                    setShowStarredOnly(prev => !prev);
+                    break;
+                case 'KeyF':
+                    setIsFullScreen(prev => !prev);
                     break;
             }
         };
@@ -129,6 +168,7 @@ export const useFlashcardStudy = (deckId: string) => {
 
     return {
         deck,
+        loading,
         activeDeck,
         currentCard,
         currentIndex,

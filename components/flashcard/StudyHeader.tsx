@@ -9,9 +9,10 @@ interface StudyHeaderProps {
     currentIndex: number;
     totalActive: number;
     onBack: () => void;
+    onDeleteSet: () => void; // Added prop
 }
 
-export default function StudyHeader({ title, totalTerms, currentIndex, totalActive, onBack }: StudyHeaderProps) {
+export default function StudyHeader({ title, totalTerms, currentIndex, totalActive, onBack, onDeleteSet }: StudyHeaderProps) {
     return (
         <div className="mb-6 sm:mb-8">
             <button
@@ -61,7 +62,7 @@ export default function StudyHeader({ title, totalTerms, currentIndex, totalActi
                                         if (action.action === 'edit') {
                                             console.log('Edit set clicked');
                                         } else if (action.action === 'delete') {
-                                            console.log('Delete set clicked');
+                                            onDeleteSet();
                                         }
                                     }}
                                 >

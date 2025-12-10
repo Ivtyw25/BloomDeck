@@ -1,13 +1,16 @@
 import { CardPopover } from '@/components/source/CardPopover';
 import { MaterialItem } from '@/types/types';
-import { Layers, FileText, ArrowRight, BookOpen, Clock } from 'lucide-react';
+import { Layers, FileText } from 'lucide-react';
 
 interface MaterialCardProps {
     data: MaterialItem;
     type: 'SOURCE' | 'TRASH';
 }
 
+import { useRouter } from 'next/navigation';
+
 export default function MaterialCard({ data, type }: MaterialCardProps) {
+    const router = useRouter();
 
     // Helper to calculate "Time Ago" (reused logic)
     const getTimeAgoString = (dateString: string) => {
@@ -16,34 +19,45 @@ export default function MaterialCard({ data, type }: MaterialCardProps) {
         const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
         let interval = seconds / 31536000;
-        if (interval > 1) return Math.floor(interval) + "y ago";
+        if (interval > 1) return Math.floor(interval) + " years ago";
         interval = seconds / 2592000;
-        if (interval > 1) return Math.floor(interval) + "mo ago";
+        if (interval > 1) return Math.floor(interval) + " months ago";
         interval = seconds / 86400;
-        if (interval > 1) return Math.floor(interval) + "d ago";
+        if (interval > 1) return Math.floor(interval) + " days ago";
         interval = seconds / 3600;
-        if (interval > 1) return Math.floor(interval) + "h ago";
+        if (interval > 1) return Math.floor(interval) + " hours ago";
         interval = seconds / 60;
-        if (interval > 1) return Math.floor(interval) + "m ago";
+        if (interval > 1) return Math.floor(interval) + " mins ago";
         return "Just now";
     };
 
     const isFlashcard = data.type === 'FLASHCARD';
 
     return (
-        <div className="group cursor-pointer bg-surface rounded-xl p-6 shadow-sm border border-surface-border hover:shadow-md hover:border-primary/50 transition-all duration-300 relative overflow-hidden h-full flex flex-col">
+        <div
+            onClick={() => router.push(`/materials/${data.id}`)}
+            className="group cursor-pointer bg-surface rounded-xl p-6 shadow-sm border border-surface-border hover:shadow-md hover:border-primary/50 transition-all duration-300 relative overflow-hidden h-full flex flex-col"
+        >
 
             {/* Top Section: Icon & Date */}
             <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${isFlashcard ? 'bg-secondary/50 text-secondary-foreground' : 'bg-blue-50 text-[#3b82f6]'}`}>
-                    {isFlashcard ? <Layers className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
+                <div className="flex items-center gap-3">
+                    <div className={`p-3 rounded-xl ${isFlashcard ? 'bg-secondary/50 text-secondary-foreground' : 'bg-blue-50 text-[#3b82f6]'}`}>
+                        {isFlashcard ? <Layers className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
+                    </div>
+                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider">
+                        {data.type}
+                    </span>
                 </div>
                 <div className='items-center gap-2 flex'>
                     <div className="flex items-center gap-1 text-xs text-text-muted bg-surface-subtle px-2 py-1 rounded-lg border border-surface-border">
-                        <Clock className="w-3 h-3" />
-                        {getTimeAgoString(data.dateCreated)}
+                        <span suppressHydrationWarning>
+                            {type === 'TRASH' && data.trashedAt
+                                ? `trashed ${getTimeAgoString(data.trashedAt)}`
+                                : `created ${getTimeAgoString(data.createdAt)}`}
+                        </span>
                     </div>
-                    <CardPopover type={type} id={data.id} title={data.title} />
+                    <CardPopover type={type} id={data.id} title={data.title} docType="MATERIAL" />
                 </div>
             </div>
 
@@ -59,19 +73,9 @@ export default function MaterialCard({ data, type }: MaterialCardProps) {
                         </div>
                     ) : (
                         <p className="text-sm text-text-muted line-clamp-3 leading-relaxed">
-                            {data.preview}
+                            {data.content}
                         </p>
                     )}
-                </div>
-            </div>
-
-            {/* Footer Section */}
-            <div className="mt-auto pt-4 border-t border-surface-border">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-text-muted max-w-[70%]">
-                        <BookOpen className="w-3 h-3 shrink-0" />
-                        <span className="truncate" title={data.sourceName}>From: {data.sourceName}</span>
-                    </div>
                 </div>
             </div>
         </div>

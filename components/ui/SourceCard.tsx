@@ -85,13 +85,13 @@ export default function SourceCard({ data, type }: SourceCardProps) {
                         {renderIconArea()}
                     </div>
                     <div className="flex-1 min-w-0 py-1">
-                        <h3 className="font-heading font-bold text-gray-900 line-clamp-1 break-all text-sm leading-tight mb-1.5" >
+                        <h3 className="font-heading font-bold text-gray-900 line-clamp-1 break-all text-sm lg:text-md leading-tight mb-1.5" >
                             {data.title}
                         </h3>
 
                         {/* Meta Info Row */}
-                        <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-400">
-                            <span className="uppercase text-gray-500 font-semibold text-[10px] tracking-wide">{data.type === 'MIXED' ? 'Mixed Sources' : data.type}</span>
+                        <div className="flex flex-wrap items-center gap-2 text-xs lg:text-[13px] font-medium text-gray-400">
+                            <span className="uppercase text-gray-500 font-semibold text-[10px] lg:text-xs tracking-wide">{data.type === 'MIXED' ? 'Mixed Sources' : data.type}</span>
 
                             {data.size && (
                                 <>
@@ -110,7 +110,7 @@ export default function SourceCard({ data, type }: SourceCardProps) {
                     </div>
                 </div>
 
-                <CardPopover type={type} id={data.id} title={data.title} />
+                <CardPopover type={type} id={data.id} title={data.title} docType="SOURCE" />
             </div>
         </div>
     );

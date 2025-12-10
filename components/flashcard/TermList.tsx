@@ -146,7 +146,7 @@ export default function TermList({
                                         <button
                                             onClick={() => onToggleStar(card.id)}
                                             className={`p-2 cursor-pointer text-text-muted hover:scale-110 active:scale-90 transition-colors ${card.isStarred ? 'text-yellow-400' : 'text-text-muted'}`}
-                                            title="Star card"
+                                            title="Star card (s)"
                                         >
                                             <Star strokeWidth={3} className={`w-4 h-4 sm:w-5 sm:h-5 ${card.isStarred ? 'fill-current' : ''}`} />
                                         </button>

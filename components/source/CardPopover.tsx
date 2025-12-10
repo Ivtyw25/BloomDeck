@@ -5,15 +5,17 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toggleTrashSource, deleteSource } from '@/services/source';
+import { toggleTrashMaterial, deleteMaterial } from '@/services/material';
 import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog';
 
 interface CardPopoverProps {
     type: 'SOURCE' | 'TRASH';
     id: string;
     title: string;
+    docType: 'SOURCE' | 'MATERIAL';
 }
 
-export function CardPopover({ type, id, title }: CardPopoverProps) {
+export function CardPopover({ type, id, title, docType }: CardPopoverProps) {
     const router = useRouter();
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -37,7 +39,9 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
 
         if (!isRestore) return;
 
-        const promise = toggleTrashSource(id, false);
+        const promise = docType === 'SOURCE'
+            ? toggleTrashSource(id, false)
+            : toggleTrashMaterial(id, false);
 
         toast.promise(promise, {
             loading: 'Restoring...',
@@ -52,7 +56,11 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
     const onConfirmTrash = async () => {
         setIsActionLoading(true);
         try {
-            await toggleTrashSource(id, true);
+            if (docType === 'SOURCE') {
+                await toggleTrashSource(id, true);
+            } else {
+                await toggleTrashMaterial(id, true);
+            }
             toast.success("Moved to trash");
             router.refresh();
             setShowTrashConfirm(false);
@@ -67,7 +75,11 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
     const onConfirmDelete = async () => {
         setIsActionLoading(true);
         try {
-            await deleteSource(id);
+            if (docType === 'SOURCE') {
+                await deleteSource(id);
+            } else {
+                await deleteMaterial(id);
+            }
             toast.success("Permanently deleted");
             router.refresh();
             setShowDeleteConfirm(false);
@@ -83,7 +95,12 @@ export function CardPopover({ type, id, title }: CardPopoverProps) {
         <>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                    <button className="cursor-pointer text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-50 transition-colors shrink-0 -mt-1 -mr-2 outline-none">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
+                        className="cursor-pointer text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-50 transition-colors shrink-0 -mt-1 -mr-2 outline-none"
+                    >
                         <MoreVertical className="w-4 h-4" />
                     </button>
                 </PopoverTrigger>

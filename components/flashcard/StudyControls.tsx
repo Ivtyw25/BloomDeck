@@ -1,4 +1,4 @@
-import { Star, Shuffle, ArrowLeft, ArrowRight, Filter, Repeat } from 'lucide-react';
+import { Star, Shuffle, ArrowLeft, ArrowRight, Filter, Repeat, Maximize, Minimize } from 'lucide-react';
 import { FlashcardData } from '@/types/types';
 import {
     Tooltip,
@@ -19,6 +19,7 @@ interface StudyControlsProps {
     onNext: () => void;
     onToggleStarredOnly: () => void;
     onToggleMode: () => void;
+    onToggleFullScreen: () => void;
 }
 
 export default function StudyControls({
@@ -33,15 +34,16 @@ export default function StudyControls({
     onPrev,
     onNext,
     onToggleStarredOnly,
-    onToggleMode
+    onToggleMode,
+    onToggleFullScreen
 }: StudyControlsProps) {
     if (!currentCard) return null;
 
     return (
-        <div className="flex items-center justify-between w-full max-w-2xl bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-gray-200 relative z-10 gap-2 sm:gap-3">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center w-full max-w-2xl bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-gray-200 relative z-10">
 
             {/* Left Actions */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 justify-self-start">
                 <Tooltip>
                     <TooltipTrigger render={
                         <button
@@ -52,7 +54,7 @@ export default function StudyControls({
                         </button>
                     } />
                     <TooltipPanel>
-                        <p>{currentCard.isStarred ? 'Unstar Card' : 'Star Card'}</p>
+                        <p>{currentCard.isStarred ? 'Unstar Card' : 'Star Card (S)'}</p>
                     </TooltipPanel>
                 </Tooltip>
 
@@ -71,35 +73,38 @@ export default function StudyControls({
                 </Tooltip>
             </div>
 
-            <div className="w-px h-8 bg-gray-200 sm:block" />
+            {/* Center Navigation & Dividers */}
+            <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-px h-8 bg-gray-200 hidden sm:block" />
 
-            {/* Navigation */}
-            <div className="flex items-center gap-2 sm:gap-6">
-                <button
-                    onClick={onPrev}
-                    disabled={currentIndex === 0}
-                    className="p-3 sm:p-4 cursor-pointer active:scale-90 hover:scale-110 text-gray-900 hover:text-primary-hover hover:-translate-x-2 transition-all disabled:opacity-30 disabled:hover:bg-secondary/30 disabled:hover:text-gray-900"
-                >
-                    <ArrowLeft strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+                {/* Navigation */}
+                <div className="flex items-center gap-2 sm:gap-6">
+                    <button
+                        onClick={onPrev}
+                        disabled={currentIndex === 0}
+                        className="p-3 sm:p-4 cursor-pointer active:scale-90 hover:scale-110 text-gray-900 hover:text-primary-hover hover:-translate-x-2 transition-all disabled:opacity-30 disabled:hover:bg-secondary/30 disabled:hover:text-gray-900"
+                    >
+                        <ArrowLeft strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
 
-                {isFullScreen && (
-                    <span className="hidden sm:inline-block text-sm font-semibold text-text-muted select-none">Swipe or Press Space</span>
-                )}
+                    {isFullScreen && (
+                        <span className="hidden sm:inline-block text-sm font-semibold text-text-muted select-none">Swipe or Press Space</span>
+                    )}
 
-                <button
-                    onClick={onNext}
-                    disabled={currentIndex === totalCards - 1}
-                    className="p-3 sm:p-4 cursor-pointer active:scale-90 hover:translate-x-2 hover:scale-110 text-gray-900 hover:text-primary-hover transition-all disabled:opacity-30 disabled:hover:bg-secondary/30 disabled:hover:text-gray-900"
-                >
-                    <ArrowRight strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+                    <button
+                        onClick={onNext}
+                        disabled={currentIndex === totalCards - 1}
+                        className="p-3 sm:p-4 cursor-pointer active:scale-90 hover:translate-x-2 hover:scale-110 text-gray-900 hover:text-primary-hover transition-all disabled:opacity-30 disabled:hover:bg-secondary/30 disabled:hover:text-gray-900"
+                    >
+                        <ArrowRight strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
+                </div>
+
+                <div className="w-px h-8 bg-gray-200 hidden sm:block" />
             </div>
 
-            <div className="w-px h-8 bg-gray-200 sm:block" />
-
             {/* Right Actions (Settings) */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 justify-self-end">
                 <Tooltip>
                     <TooltipTrigger render={
                         <button
@@ -110,7 +115,7 @@ export default function StudyControls({
                         </button>
                     } />
                     <TooltipPanel>
-                        <p>Study Starred Only</p>
+                        <p>Study Starred Only (Q)</p>
                     </TooltipPanel>
                 </Tooltip>
 
@@ -125,6 +130,24 @@ export default function StudyControls({
                     } />
                     <TooltipPanel>
                         <p>Flip Term & Definitions (T)</p>
+                    </TooltipPanel>
+                </Tooltip>
+
+                <Tooltip>
+                    <TooltipTrigger render={
+                        <button
+                            onClick={onToggleFullScreen}
+                            className={`p-2 sm:p-3 cursor-pointer active:scale-90 hover:scale-110 transition-all hover:text-primary-hover ${isFullScreen ? 'text-primary-hover' : 'text-text-muted'}`}
+                        >
+                            {isFullScreen ? (
+                                <Minimize strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
+                            ) : (
+                                <Maximize strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
+                            )}
+                        </button>
+                    } />
+                    <TooltipPanel>
+                        <p>{isFullScreen ? 'Exit Full Screen (F)' : 'Enter Full Screen (F)'}</p>
                     </TooltipPanel>
                 </Tooltip>
             </div>

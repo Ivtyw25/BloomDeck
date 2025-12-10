@@ -59,12 +59,6 @@ export default function StudyDisplay({
                             <div className="text-lg sm:text-xl font-bold font-heading text-text-main truncate">{deckTitle}</div>
                             <div className="text-xs sm:text-sm text-text-muted font-medium">{currentIndex + 1} / {totalCards}</div>
                         </div>
-                        <button
-                            onClick={() => onToggleFullScreen(false)}
-                            className="cursor-pointer p-2 sm:p-3 bg-white rounded-full shadow-md text-text-main hover:bg-gray-50 shrink-0"
-                        >
-                            <Minimize className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -79,21 +73,6 @@ export default function StudyDisplay({
                     }`}
                 onClick={onFlip}
             >
-                {/* Full Screen Toggle (Normal Mode) */}
-                <AnimatePresence>
-                    {!isFullScreen && (
-                        <motion.button
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            onClick={(e) => { e.stopPropagation(); onToggleFullScreen(true); }}
-                            className="cursor-pointer absolute top-4 right-4 z-10 p-2 bg-white/50 backdrop-blur-sm rounded-full text-text-muted hover:bg-white hover:text-gray-900 shadow-sm transition-colors"
-                            title="Full Screen"
-                        >
-                            <Maximize className="w-5 h-5" />
-                        </motion.button>
-                    )}
-                </AnimatePresence>
 
                 <motion.div
                     layout
@@ -124,6 +103,7 @@ export default function StudyDisplay({
                             <Flashcard
                                 data={displayCardData}
                                 isFlipped={isFlipped}
+                                isTermMode={isTermMode}
                             />
                         </motion.div>
                     </AnimatePresence>

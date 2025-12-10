@@ -3,16 +3,20 @@ import { FlashcardData } from '@/types/types';
 interface FlashcardProps {
   data: FlashcardData;
   isFlipped?: boolean; // Optional prop for controlled state
+  isTermMode?: boolean;
 }
 
-export default function Flashcard({ data, isFlipped }: FlashcardProps) {
+export default function Flashcard({ data, isFlipped, isTermMode = true }: FlashcardProps) {
 
-  /* ... */
+  const SIZE_LARGE = "text-lg font-heading sm:text-xl md:text-2xl font-bold leading-snug";
+  const SIZE_MEDIUM = "text-sm font-heading sm:text-md md:text-lg font-medium leading-relaxed";
+
   const renderFrontContent = () => {
+    const sizeClass = isTermMode ? SIZE_LARGE : SIZE_MEDIUM;
     return (
       <div className="h-full w-full overflow-y-auto p-6 sm:p-8 no-scrollbar">
         <div className="min-h-full flex flex-col items-center justify-center space-y-4 sm:space-y-6">
-          <h3 className="text-lg font-heading sm:text-xl md:text-2xl font-bold text-text-main leading-snug select-none break-words max-w-full">
+          <h3 className={`${sizeClass} text-text-main select-none break-words max-w-full`}>
             {data.term}
           </h3>
           {/* <p className="text-xs sm:text-sm text-text-muted uppercase tracking-widest font-semibold opacity-60">Term</p> */}
@@ -22,10 +26,11 @@ export default function Flashcard({ data, isFlipped }: FlashcardProps) {
   };
 
   const renderBackContent = () => {
+    const sizeClass = isTermMode ? SIZE_MEDIUM : SIZE_LARGE;
     return (
       <div className="h-full w-full overflow-y-auto p-6 sm:p-8 bg-gray-900 text-white rounded-2xl no-scrollbar">
         <div className="min-h-full flex flex-col items-center justify-center">
-          <div className="text-sm font-heading sm:text-md md:text-lg font-medium leading-relaxed select-none break-words max-w-full">
+          <div className={`${sizeClass} select-none break-words max-w-full`}>
             {data.definition}
           </div>
           {/* <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-300 uppercase tracking-widest font-semibold">Definition</p> */}

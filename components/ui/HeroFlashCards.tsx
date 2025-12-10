@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeroFlashcardData, FlashcardType } from '@/types/types';
+import { HeroFlashcardData } from '@/types/types';
 import { HelpCircle, CheckCircle, Code, List, Type } from 'lucide-react';
 
 interface FlashcardProps {
@@ -10,11 +10,11 @@ interface FlashcardProps {
 export default function HeroFlashCard({ data, className = '' }: FlashcardProps) {
     const getIcon = () => {
         switch (data.type) {
-            case FlashcardType.MULTIPLE_CHOICE:
+            case 'MULTIPLE_CHOICE':
                 return <List className="w-5 h-5 text-green-600" />;
-            case FlashcardType.TRUE_FALSE:
+            case 'TRUE_FALSE':
                 return <HelpCircle className="w-5 h-5 text-green-600" />;
-            case FlashcardType.CODE_SNIPPET:
+            case 'CODE_SNIPPET':
                 return <Code className="w-5 h-5 text-green-600" />;
             default:
                 return <Type className="w-5 h-5 text-green-600" />;
