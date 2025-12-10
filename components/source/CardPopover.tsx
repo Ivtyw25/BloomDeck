@@ -62,6 +62,11 @@ export function CardPopover({ type, id, title, docType }: CardPopoverProps) {
                 await toggleTrashMaterial(id, true);
             }
             toast.success("Moved to trash");
+            if (docType === 'SOURCE') {
+                router.push('/source');
+            } else {
+                router.push('/materials');
+            }
             router.refresh();
             setShowTrashConfirm(false);
         } catch (e) {

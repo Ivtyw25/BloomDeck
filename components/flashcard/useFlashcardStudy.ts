@@ -12,6 +12,7 @@ export const useFlashcardStudy = (deckId: string) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<{ term: string, definition: string }>({ term: '', definition: '' });
+    const [isUpdating, setIsUpdating] = useState(false);
 
     // Fetch Data
     useEffect(() => {
@@ -55,6 +56,7 @@ export const useFlashcardStudy = (deckId: string) => {
         const card = deck.find(c => c.id === id);
         if (!card) return;
         const newStatus = !card.isStarred;
+        setIsUpdating(true);
 
         // Optimistic update
         const newDeck = deck.map(c =>
@@ -68,6 +70,8 @@ export const useFlashcardStudy = (deckId: string) => {
             console.error("Failed to update star:", e);
             // Revert
             setDeck(deck);
+        } finally {
+            setIsUpdating(false);
         }
     }, [deck]);
 
@@ -76,12 +80,15 @@ export const useFlashcardStudy = (deckId: string) => {
         const newStatus = !allStarred;
         const newDeck = deck.map(c => ({ ...c, isStarred: newStatus }));
         setDeck(newDeck);
+        setIsUpdating(true);
 
         try {
             await updateAllFlashcardsStar(deckId, newStatus);
         } catch (e) {
             console.error("Failed to update all stars:", e);
             setDeck(deck);
+        } finally {
+            setIsUpdating(false);
         }
     }, [deck, deckId]);
 
@@ -176,6 +183,7 @@ export const useFlashcardStudy = (deckId: string) => {
         showStarredOnly,
         isTermMode,
         isFullScreen,
+        isUpdating,
         editingId,
         editForm,
         actions: {

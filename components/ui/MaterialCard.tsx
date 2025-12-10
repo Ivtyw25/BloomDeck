@@ -50,19 +50,12 @@ export default function MaterialCard({ data, type }: MaterialCardProps) {
                     </span>
                 </div>
                 <div className='items-center gap-2 flex'>
-                    <div className="flex items-center gap-1 text-xs text-text-muted bg-surface-subtle px-2 py-1 rounded-lg border border-surface-border">
-                        <span suppressHydrationWarning>
-                            {type === 'TRASH' && data.trashedAt
-                                ? `trashed ${getTimeAgoString(data.trashedAt)}`
-                                : `created ${getTimeAgoString(data.createdAt)}`}
-                        </span>
-                    </div>
                     <CardPopover type={type} id={data.id} title={data.title} docType="MATERIAL" />
                 </div>
             </div>
 
             {/* Content Section */}
-            <div className="flex-1 mb-4">
+            <div className="flex-1 mb-0">
                 <h3 className="font-heading font-bold text-lg text-text-main mb-2 line-clamp-1">{data.title}</h3>
 
                 <div className="min-h-18">
@@ -77,6 +70,15 @@ export default function MaterialCard({ data, type }: MaterialCardProps) {
                         </p>
                     )}
                 </div>
+            </div>
+
+            {/* Footer Section */}
+            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                <span className="text-xs text-text-muted font-medium" suppressHydrationWarning>
+                    {type === 'TRASH' && data.trashedAt
+                        ? `Trashed ${getTimeAgoString(data.trashedAt)}`
+                        : `Created ${getTimeAgoString(data.createdAt)}`}
+                </span>
             </div>
         </div>
     );

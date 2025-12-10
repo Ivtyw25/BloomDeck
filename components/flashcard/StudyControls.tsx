@@ -20,6 +20,7 @@ interface StudyControlsProps {
     onToggleStarredOnly: () => void;
     onToggleMode: () => void;
     onToggleFullScreen: () => void;
+    isUpdating: boolean;
 }
 
 export default function StudyControls({
@@ -35,7 +36,8 @@ export default function StudyControls({
     onNext,
     onToggleStarredOnly,
     onToggleMode,
-    onToggleFullScreen
+    onToggleFullScreen,
+    isUpdating
 }: StudyControlsProps) {
     if (!currentCard) return null;
 
@@ -109,7 +111,8 @@ export default function StudyControls({
                     <TooltipTrigger render={
                         <button
                             onClick={onToggleStarredOnly}
-                            className={`p-2 sm:p-3 cursor-pointer active:scale-90 hover:scale-110 transition-all hover:text-primary-hover ${showStarredOnly ? 'text-primary-hover' : 'text-text-muted'}`}
+                            disabled={isUpdating}
+                            className={`p-2 sm:p-3 cursor-pointer active:scale-90 hover:scale-110 transition-all hover:text-primary-hover disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${showStarredOnly ? 'text-primary-hover' : 'text-text-muted'}`}
                         >
                             <Filter strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>

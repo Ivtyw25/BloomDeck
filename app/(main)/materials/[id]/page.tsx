@@ -97,6 +97,7 @@ function FlashcardStudyWrapper({ deckId, deckTitle, onBack }: FlashcardStudyWrap
         showStarredOnly,
         isTermMode,
         isFullScreen,
+        isUpdating,
         editingId,
         editForm,
         actions,
@@ -184,6 +185,7 @@ function FlashcardStudyWrapper({ deckId, deckTitle, onBack }: FlashcardStudyWrap
                     onToggleStarredOnly={() => actions.setShowStarredOnly(!showStarredOnly)}
                     onToggleMode={actions.toggleMode}
                     onToggleFullScreen={() => actions.setIsFullScreen(!isFullScreen)}
+                    isUpdating={isUpdating}
                 />
             </div>
 
