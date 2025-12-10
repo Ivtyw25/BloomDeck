@@ -10,7 +10,7 @@ import { YoutubeUploadArea } from '@/components/source/YoutubeUploadArea';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { getTitleFromUrl } from '@/services/youtube';
 import { createSource } from '@/services/source';
-import { uploadFileToS3 } from '@/services/upload';
+import { getPresignedUploadUrl } from '@/services/upload';
 
 type UploadMode = 'FILES' | 'YOUTUBE';
 
@@ -93,7 +93,6 @@ export default function UploadPage() {
                     return;
                 }
 
-                // Check total file size (limit 50MB)
                 const totalBytes = files.reduce((acc, file) => acc + file.size, 0);
                 const MAX_SIZE_MB = 50;
                 if (totalBytes > MAX_SIZE_MB * 1024 * 1024) {
@@ -108,17 +107,27 @@ export default function UploadPage() {
                 const typesSet = new Set<string>();
 
                 for (const file of files) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-
                     try {
-                        const url = await uploadFileToS3(formData);
-                        uploadedUrls.push(url);
+                        const { signedUrl, publicUrl } = await getPresignedUploadUrl(file.name, file.type);
+                        const uploadResponse = await fetch(signedUrl, {
+                            method: 'PUT',
+                            body: file,
+                            headers: {
+                                'Content-Type': file.type
+                            }
+                        });
+
+
+                        if (!uploadResponse.ok) {
+                            throw new Error(`Failed to upload to storage: ${uploadResponse.statusText}`);
+                        }
+
+                        uploadedUrls.push(publicUrl);
                         totalSize += file.size;
                         typesSet.add(normalizeFileType(file.name));
-                    } catch (uploadError) {
+                    } catch (uploadError: any) {
                         console.error(`Failed to upload file ${file.name}:`, uploadError);
-                        toast.error(`Failed to upload ${file.name}`);
+                        toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
                         setIsSubmitting(false);
                         return;
                     }

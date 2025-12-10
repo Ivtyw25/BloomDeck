@@ -2,6 +2,7 @@
 
 import { s3Client } from '@/lib/s3';
 import { PutObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const BUCKET_NAME = process.env.AWS_S3_BUCKET;
 const REGION = process.env.AWS_REGION || "ap-southeast-1";
@@ -17,55 +18,45 @@ const extractKeyFromUrl = (url: string) => {
     }
 };
 
+
 /**
- * Uploads a file to AWS S3.
- * This runs on the server to protect credentials.
+ * Generates a pre-signed URL for direct client-to-S3 upload.
+ * This bypasses the server for file data transfer, allowing larger file uploads.
  * 
- * @param formData FormData containing 'file' field
- * @returns The public URL of the uploaded file.
+ * @param fileName The original name of the file
+ * @param contentType The MIME type of the file
+ * @returns { signedUrl, publicUrl, key }
  */
-export async function uploadFileToS3(formData: FormData): Promise<string> {
-    const file = formData.get('file') as File;
-
-    if (!file) {
-        throw new Error("No file provided");
-    }
-
+export async function getPresignedUploadUrl(fileName: string, contentType: string) {
     if (!BUCKET_NAME) {
         throw new Error("AWS_S3_BUCKET is not defined in environment variables");
     }
 
     try {
-        const buffer = Buffer.from(await file.arrayBuffer());
-
         // Generate a unique file name
-        // 1. Sanitize original name
-        const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        // 2. Add timestamp and random string
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}_${sanitizedOriginalName}`;
-        const key = `uploads/${fileName}`;
+        const sanitizedOriginalName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const uniqueFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}_${sanitizedOriginalName}`;
+        const key = `uploads/${uniqueFileName}`;
 
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,
             Key: key,
-            Body: buffer,
-            ContentType: file.type,
+            ContentType: contentType,
         });
 
-        await s3Client.send(command);
+        const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
-        // Return the standard S3 URL
-        // NOTE: This URL will be accessible only if the bucket/object is public.
-        // If your bucket is private, you will need to generate a Presigned URL for viewing.
-        const url = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
+        // Construct the public URL
+        const publicUrl = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
 
-        return url;
+        return { signedUrl, publicUrl, key };
 
     } catch (error: any) {
-        console.error("S3 Upload Error:", error);
-        throw new Error(`Failed to upload file to S3: ${error.message}`);
+        console.error("Presigned URL Generation Error:", error);
+        throw new Error(`Failed to generate presigned URL: ${error.message}`);
     }
 }
+
 
 /**
  * Deletes multiple files from S3.

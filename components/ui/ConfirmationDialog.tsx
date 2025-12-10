@@ -40,7 +40,7 @@ export function ConfirmationDialog({
                 <DialogOverlay className="fixed inset-0 z-100 bg-black/40 backdrop-blur-sm" />
                 <DialogContent
                     from="top"
-                    className="fixed left-[50%] top-[50%] z-100 w-full max-w-md translate-x-[-50%] translate-y-[-50%] border border-primary/50 bg-white p-6 shadow-xl rounded-2xl duration-200 focus:outline-none"
+                    className="fixed left-[50%] top-[50%] z-100 w-[90vw] max-w-md translate-x-[-50%] translate-y-[-50%] border border-primary/50 bg-white p-6 shadow-xl rounded-2xl duration-200 focus:outline-none"
                 >
                     <DialogHeader className="mb-4">
                         <DialogTitle className="text-lg font-heading font-semibold text-text-main leading-6">

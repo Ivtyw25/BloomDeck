@@ -53,11 +53,11 @@ export function FileList({ files, onRemove, disabled }: FileListProps) {
                             transition={{ duration: 0.4 }}
                             className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm"
                         >
-                            <div className="flex items-center gap-4">
-                                <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center`}>
+                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                                <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center shrink-0`}>
                                     {icon}
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                     <p className="font-medium text-text-main text-sm line-clamp-1">{file.name}</p>
                                     <p className="text-xs font-medium text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                 </div>
@@ -65,7 +65,7 @@ export function FileList({ files, onRemove, disabled }: FileListProps) {
                             <button
                                 onClick={() => !disabled && onRemove(idx)}
                                 disabled={disabled}
-                                className={`cursor-pointer text-gray-400 p-2 rounded-lg transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-red-500 hover:bg-red-50'}`}
+                                className={`cursor-pointer text-gray-400 p-2 rounded-lg transition-all shrink-0 ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-red-500 hover:bg-red-50'}`}
                             >
                                 <X className="w-5 h-5" />
                             </button>
