@@ -29,6 +29,12 @@ export const useFlashcardStudy = (deckId: string) => {
         if (deckId) fetchDeck();
     }, [deckId]);
 
+    // Reset navigation when filtering changes
+    useEffect(() => {
+        setCurrentIndex(0);
+        setIsFlipped(false);
+    }, [showStarredOnly]);
+
     // Derived state
     const activeDeck = showStarredOnly ? deck.filter(c => c.isStarred) : deck;
     const currentCard = activeDeck[currentIndex];
@@ -110,6 +116,48 @@ export const useFlashcardStudy = (deckId: string) => {
         setEditForm({ term: card.term, definition: card.definition });
     };
 
+    const [isExplaining, setIsExplaining] = useState(false);
+    const [explanation, setExplanation] = useState<string | null>(null);
+    const [showExplanationModal, setShowExplanationModal] = useState(false);
+    const handleExplainConcept = async () => {
+        if (!currentCard) return;
+
+        setIsExplaining(true);
+        setShowExplanationModal(true);
+        setExplanation("");
+
+        try {
+            const response = await fetch('/api/ai/stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    term: currentCard.term,
+                    definition: currentCard.definition
+                })
+            });
+            if (!response.ok) throw new Error('Failed to start stream');
+            if (!response.body) throw new Error('No response body');
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            // Stop loading indicator as soon as stream starts
+            setIsExplaining(false);
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value, { stream: true });
+                setExplanation(prev => (prev || "") + chunk);
+            }
+        } catch (error) {
+            console.error("Failed to explain:", error);
+            setExplanation("Failed to generate explanation. Please try again.");
+        } finally {
+            setIsExplaining(false);
+        }
+    };
+
     const saveEditing = async () => {
         if (!editingId) return;
         const previousDeck = deck;
@@ -166,6 +214,9 @@ export const useFlashcardStudy = (deckId: string) => {
                 case 'KeyF':
                     setIsFullScreen(prev => !prev);
                     break;
+                case 'KeyE':
+                    handleExplainConcept();
+                    break;
             }
         };
 
@@ -186,6 +237,9 @@ export const useFlashcardStudy = (deckId: string) => {
         isUpdating,
         editingId,
         editForm,
+        isExplaining,
+        explanation,
+        showExplanationModal,
         actions: {
             handleNext,
             handlePrev,
@@ -199,7 +253,9 @@ export const useFlashcardStudy = (deckId: string) => {
             startEditing,
             saveEditing,
             cancelEditing,
-            setEditForm: setEditFormState
+            setEditForm: setEditFormState,
+            handleExplainConcept,
+            setShowExplanationModal
         }
     };
 };

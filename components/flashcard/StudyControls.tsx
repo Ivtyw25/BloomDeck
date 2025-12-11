@@ -1,4 +1,4 @@
-import { Star, Shuffle, ArrowLeft, ArrowRight, Filter, Repeat, Maximize, Minimize } from 'lucide-react';
+import { Star, Shuffle, ArrowLeft, ArrowRight, Filter, Repeat, Maximize, Minimize, Bot } from 'lucide-react';
 import { FlashcardData } from '@/types/types';
 import {
     Tooltip,
@@ -21,6 +21,7 @@ interface StudyControlsProps {
     onToggleMode: () => void;
     onToggleFullScreen: () => void;
     isUpdating: boolean;
+    onExplain: () => void;
 }
 
 export default function StudyControls({
@@ -37,15 +38,16 @@ export default function StudyControls({
     onToggleStarredOnly,
     onToggleMode,
     onToggleFullScreen,
-    isUpdating
+    isUpdating,
+    onExplain
 }: StudyControlsProps) {
     if (!currentCard) return null;
 
     return (
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center w-full max-w-2xl bg-white p-2 sm:p-3 rounded-2xl shadow-sm border border-gray-200 relative z-10">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center w-full max-w-2xl bg-white p-1 sm:p-3 rounded-2xl shadow-sm border border-gray-200 relative z-10 transition-all">
 
             {/* Left Actions */}
-            <div className="flex items-center gap-1 sm:gap-2 justify-self-start">
+            <div className="flex items-center gap-0 sm:gap-2 justify-self-start">
                 <Tooltip>
                     <TooltipTrigger render={
                         <button
@@ -76,15 +78,31 @@ export default function StudyControls({
             </div>
 
             {/* Center Navigation & Dividers */}
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center justify-center gap-1 sm:gap-4">
                 <div className="w-px h-8 bg-gray-200 hidden sm:block" />
 
+                <Tooltip>
+                    <TooltipTrigger render={
+                        <button
+                            onClick={onExplain}
+                            className="cursor-pointer p-2 active:scale-90 hover:scale-110 hover:text-primary sm:p-3 rounded-full text-text-muted hover:bg-brand-light/50 hover:text-brand-dark transition-all block"
+                        >
+                            <Bot className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 text-brand-secondary" />
+                        </button>
+                    } />
+                    <TooltipPanel>
+                        <p>Explain with AI (E)</p>
+                    </TooltipPanel>
+                </Tooltip>
+
+                <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+
                 {/* Navigation */}
-                <div className="flex items-center gap-2 sm:gap-6">
+                <div className="flex items-center gap-1 sm:gap-6">
                     <button
                         onClick={onPrev}
                         disabled={currentIndex === 0}
-                        className="p-3 sm:p-4 cursor-pointer active:scale-90 hover:scale-110 text-gray-900 hover:text-primary-hover hover:-translate-x-2 transition-all disabled:opacity-30 disabled:hover:bg-secondary/30 disabled:hover:text-gray-900"
+                        className="p-2 sm:p-4 cursor-pointer active:scale-90 hover:scale-110 text-gray-900 hover:text-primary-hover hover:-translate-x-2 transition-all disabled:opacity-30 disabled:hover:bg-secondary/30 disabled:hover:text-gray-900"
                     >
                         <ArrowLeft strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
@@ -96,7 +114,7 @@ export default function StudyControls({
                     <button
                         onClick={onNext}
                         disabled={currentIndex === totalCards - 1}
-                        className="p-3 sm:p-4 cursor-pointer active:scale-90 hover:translate-x-2 hover:scale-110 text-gray-900 hover:text-primary-hover transition-all disabled:opacity-30 disabled:hover:bg-secondary/30 disabled:hover:text-gray-900"
+                        className="p-2 sm:p-4 cursor-pointer active:scale-90 hover:translate-x-2 hover:scale-110 text-gray-900 hover:text-primary-hover transition-all disabled:opacity-30 disabled:hover:bg-secondary/30 disabled:hover:text-gray-900"
                     >
                         <ArrowRight strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>

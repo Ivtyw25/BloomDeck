@@ -1,6 +1,6 @@
 'use server';
 
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3/videos';
 
 // Regex to capture the 11-char video ID in group 1
@@ -29,8 +29,8 @@ function extractVideoId(url: string): string | null {
  * @returns A Promise that resolves to the video title, or throws an error.
  */
 export async function getYouTubeVideoTitle(videoId: string): Promise<string> {
-    if (!YOUTUBE_API_KEY) {
-        throw new Error("Missing server-side configuration: YOUTUBE_API_KEY");
+    if (!GOOGLE_API_KEY) {
+        throw new Error("Missing server-side configuration: GOOGLE_API_KEY");
     }
 
     if (!videoId) {
@@ -41,7 +41,7 @@ export async function getYouTubeVideoTitle(videoId: string): Promise<string> {
     const apiUrl = `${YOUTUBE_API_BASE_URL}?` + new URLSearchParams({
         part: 'snippet',
         id: videoId,
-        key: YOUTUBE_API_KEY,
+        key: GOOGLE_API_KEY,
         fields: 'items(snippet(title))'
     });
 

@@ -4,12 +4,18 @@ interface FlashcardProps {
   data: FlashcardData;
   isFlipped?: boolean; // Optional prop for controlled state
   isTermMode?: boolean;
+  isFullScreen?: boolean;
 }
 
-export default function Flashcard({ data, isFlipped, isTermMode = true }: FlashcardProps) {
+export default function Flashcard({ data, isFlipped, isTermMode = true, isFullScreen = false }: FlashcardProps) {
 
-  const SIZE_LARGE = "text-lg font-heading sm:text-xl md:text-2xl font-bold leading-snug";
-  const SIZE_MEDIUM = "text-sm font-heading sm:text-md md:text-lg font-medium leading-relaxed";
+  const SIZE_LARGE = isFullScreen
+    ? "text-xl font-heading sm:text-4xl md:text-5xl font-bold leading-snug"
+    : "text-lg font-heading sm:text-xl md:text-2xl font-bold leading-snug";
+
+  const SIZE_MEDIUM = isFullScreen
+    ? "text-base font-heading sm:text-2xl md:text-3xl font-medium leading-relaxed"
+    : "text-sm font-heading sm:text-base md:text-lg font-medium leading-relaxed";
 
   const renderFrontContent = () => {
     const sizeClass = isTermMode ? SIZE_LARGE : SIZE_MEDIUM;

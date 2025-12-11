@@ -104,6 +104,7 @@ export default function StudyDisplay({
                                 data={displayCardData}
                                 isFlipped={isFlipped}
                                 isTermMode={isTermMode}
+                                isFullScreen={isFullScreen}
                             />
                         </motion.div>
                     </AnimatePresence>

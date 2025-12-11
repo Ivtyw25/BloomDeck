@@ -10,6 +10,7 @@ import { getMaterial, deleteMaterial } from '@/services/material';
 import { useRouter } from 'next/navigation';
 import { MaterialItem } from '@/types/types';
 import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog';
+import { ExplanationModal } from '@/components/ui/ExplanationModal';
 import { toast } from 'sonner';
 
 interface MaterialDetailProps {
@@ -100,6 +101,9 @@ function FlashcardStudyWrapper({ deckId, deckTitle, onBack }: FlashcardStudyWrap
         isUpdating,
         editingId,
         editForm,
+        isExplaining,
+        explanation,
+        showExplanationModal,
         actions,
         loading
     } = useFlashcardStudy(deckId);
@@ -186,6 +190,7 @@ function FlashcardStudyWrapper({ deckId, deckTitle, onBack }: FlashcardStudyWrap
                     onToggleMode={actions.toggleMode}
                     onToggleFullScreen={() => actions.setIsFullScreen(!isFullScreen)}
                     isUpdating={isUpdating}
+                    onExplain={actions.handleExplainConcept}
                 />
             </div>
 
@@ -214,6 +219,14 @@ function FlashcardStudyWrapper({ deckId, deckTitle, onBack }: FlashcardStudyWrap
                 confirmText="Delete Set"
                 isLoading={isDeleting}
                 loadingText="Deleting..."
+            />
+
+            <ExplanationModal
+                isOpen={showExplanationModal}
+                onClose={() => actions.setShowExplanationModal(false)}
+                term={currentCard?.term || ''}
+                explanation={explanation}
+                isLoading={isExplaining}
             />
         </div>
     );
