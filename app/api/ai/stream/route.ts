@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
             `;
 
         const result = await genAI.models.generateContentStream({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.5-flash-lite',
             contents: prompt,
             config: {
                 systemInstruction: systemInstruction,

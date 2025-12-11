@@ -5,14 +5,13 @@ import { useRouter, useParams } from 'next/navigation';
 import { getSourceById } from '@/services/source';
 import { SourceDocument } from '@/types/types';
 import { toast } from 'sonner';
-import { Eye, MessageSquare, Sparkles } from 'lucide-react';
+import { Eye, Loader2, MessageSquare, Sparkles } from 'lucide-react';
 
 //components
 import { SourceHeader } from '@/components/source/SourceHeader';
 import { SourcePreview } from '@/components/source/SourcePreview';
 import { ChatInterface } from '@/components/ui/ChatInterface';
 import { GenerationGrid } from '@/components/ui/GenerationGrid';
-import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Tabs, TabsList, TabsTab, TabsPanels, TabsPanel } from '@/components/animate-ui/components/base/tabs';
 
@@ -62,7 +61,9 @@ export default function SourcePage() {
     };
 
     if (loading) {
-        return <LoadingState />;
+        return (<div className="flex min-h-screen items-center justify-center">
+                    <Loader2 className="w-8 h-8 md:w-12 md:h-12 text-primary animate-spin" />
+                </div>);
     }
 
     if (!source) {

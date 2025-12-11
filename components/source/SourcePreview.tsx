@@ -75,23 +75,13 @@ export function SourcePreview({ type, url, containedTypes }: SourcePreviewProps)
             );
         }
 
-        if (currentType === 'PDF') {
-            return (
-                <iframe
-                    src={currentUrl}
-                    className="w-full h-[80vh] rounded-xl border border-gray-200"
-                    title="PDF Viewer"
-                />
-            );
-        }
-
-        if (currentType === 'DOCX' || currentType === 'PPT') {
-            // Google Docs Viewer for Office files
+        if (currentType === 'PDF' || currentType === 'DOCX' || currentType === 'PPT') {
+            // Google Docs Viewer for Office files and PDF (better mobile support)
             return (
                 <iframe
                     src={`https://docs.google.com/gview?url=${encodeURIComponent(currentUrl)}&embedded=true`}
                     className="w-full h-[80vh] rounded-xl border border-gray-200"
-                    title="Office Document Viewer"
+                    title="Document Viewer"
                 />
             )
         }
