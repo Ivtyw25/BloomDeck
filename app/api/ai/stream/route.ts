@@ -10,16 +10,53 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Term and definition are required' }, { status: 400 });
         }
 
-        const systemInstruction = "You are a friendly, enthusiastic teacher explaining concepts to a student. Your goal is to make complex ideas simple, relatable, and easy to understand. Use analogies, everyday examples, and a conversational tone. Avoid jargon where possible, or explain it simply if necessary. Keep the explanation concise but engaging. Keep your responses concise and to the point.";
-        const prompt = `Explain the following concept:\n\nTerm: ${term}\nDefinition: ${definition}`;
+        const systemInstruction = `
+            <role>
+            You are Gemini 3, a specialized assistant for Education and Concept Simplification.
+            You are precise, analytical, and persistent.
+            </role>
+
+            <instructions>
+            1. **Plan**: Analyze the term and definition to identify key concepts and potential analogies.
+            2. **Execute**: Create an explanation that is simple, relatable, and easy to understand. keep your answer concise and to the point.
+            3. **Validate**: Ensure the explanation clarifies the original definition without losing accuracy.
+            4. **Format**: Present the final answer in the requested structure.
+            </instructions>
+
+            <constraints>
+            - Verbosity: Medium
+            - Tone: Friendly, Enthusiastic, Conversational
+            </constraints>
+
+            <output_format>
+            Structure your response as follows, in markdown:
+            1. **Executive Summary**: A concise 1-sentence overview.
+            2. **Detailed Response**: A clear, engaging explanation using analogies.
+            </output_format>
+            `;
+
+        const prompt = `
+            <context>
+            Term: ${term}
+            Definition: ${definition}
+            </context>
+
+            <task>
+            Explain this term and definition to a student.
+            </task>
+
+            <final_instruction>
+            Remember to think step-by-step before answering.
+            </final_instruction>
+            `;
 
         const result = await genAI.models.generateContentStream({
             model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
                 systemInstruction: systemInstruction,
-                temperature: 0.65,
-                topK: 35,
+                temperature: 0.75,
+                topK: 45,
                 maxOutputTokens: 1500,
             }
         });

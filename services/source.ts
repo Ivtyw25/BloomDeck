@@ -73,6 +73,68 @@ export async function getSources(inTrash: boolean = false): Promise<SourceDocume
     }));
 }
 
+/**
+ * Fetches a single source by ID from the "Sources-Table" in Supabase.
+ * This runs on the server.
+ * 
+ * @param id The ID of the source to fetch.
+ * @returns A SourceDocument object or null if not found.
+ */
+// Helper to get key from URL (duplicate from upload.ts but kept for safety/isolation or export from there)
+const extractKey = (url: string) => {
+    try {
+        const urlObj = new URL(url);
+        return urlObj.pathname.substring(1);
+    } catch (e) {
+        return null;
+    }
+};
+
+import { getPresignedDownloadUrl } from '@/services/upload';
+
+export async function getSourceById(id: string): Promise<SourceDocument | null> {
+    const { data, error } = await supabase
+        .from('Sources-Table')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) {
+        console.error("Supabase Fetch by ID Error:", error);
+        return null;
+    }
+
+    if (!data) return null;
+
+    let signedUrl: string | string[] | undefined = undefined;
+
+    if (data.type !== 'YOUTUBE' && data.file_url) {
+        const urls = Array.isArray(data.file_url) ? data.file_url : [data.file_url];
+        const signedUrls = await Promise.all(urls.map(async (url: string) => {
+            const key = extractKey(url);
+            if (key) {
+                return await getPresignedDownloadUrl(key) || url;
+            }
+            return url;
+        }));
+        
+        signedUrl = Array.isArray(data.file_url) ? signedUrls : signedUrls[0];
+    } else {
+        signedUrl = data.youtube_url;
+    }
+
+    return {
+        id: data.id,
+        title: data.title,
+        type: data.type as FileType,
+        containedTypes: data.type === 'MIXED' ? (data.containedTypes as FileType[]) : undefined,
+        dateAdded: data.created_at,
+        size: data.type !== 'YOUTUBE' ? data.size : undefined,
+        trashDate: data.trashed_at ? data.trashed_at : undefined,
+        url: signedUrl
+    };
+}
+
 export async function toggleTrashSource(id: string, inTrash: boolean) {
     const { error } = await supabase
         .from('Sources-Table')

@@ -1,4 +1,4 @@
-import { HeroFlashcardData} from '@/types/types';
+import { HeroFlashcardData } from '@/types/types';
 // for sidebar
 import { Home, FileText, Library, Trash2, Undo2, Edit3 } from 'lucide-react';
 
@@ -66,7 +66,35 @@ export const SIDEBAR_ITEMS = [
   },
 ];
 
-// Helper to get a date relative to now for the mock
+// Mock Sources Data
+export const MOCK_SOURCES = [
+  {
+    id: '1',
+    title: 'Introduction to Biology.pdf',
+    type: 'PDF',
+    dateAdded: '2023-10-26T10:00:00Z',
+    size: '2.4 MB',
+    containedTypes: ['PDF']
+  },
+  {
+    id: '2',
+    title: 'Advanced React Patterns',
+    type: 'YOUTUBE',
+    dateAdded: '2023-10-25T14:30:00Z',
+    size: 'Stream',
+    containedTypes: ['YOUTUBE']
+  },
+  {
+    id: '3',
+    title: 'History of Rome Notes',
+    type: 'DOCX',
+    dateAdded: '2023-10-24T09:15:00Z',
+    size: '1.1 MB',
+    containedTypes: ['DOCX']
+  }
+] as const;
+
+// for sidebar
 const getTimeAgo = (minutes: number) => {
   const date = new Date();
   date.setMinutes(date.getMinutes() - minutes);

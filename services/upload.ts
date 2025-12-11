@@ -1,7 +1,7 @@
 'use server';
 
 import { s3Client } from '@/lib/s3';
-import { PutObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, DeleteObjectsCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const BUCKET_NAME = process.env.AWS_S3_BUCKET;
@@ -54,6 +54,29 @@ export async function getPresignedUploadUrl(fileName: string, contentType: strin
     } catch (error: any) {
         console.error("Presigned URL Generation Error:", error);
         throw new Error(`Failed to generate presigned URL: ${error.message}`);
+    }
+}
+
+
+/**
+ * Generates a pre-signed URL for viewing/downloading an S3 file.
+ * 
+ * @param fileKey The S3 key of the file
+ * @returns {string} The signed URL
+ */
+export async function getPresignedDownloadUrl(fileKey: string) {
+    if (!BUCKET_NAME) throw new Error("AWS_S3_BUCKET is not defined");
+
+    try {
+        const command = new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: fileKey,
+        });
+
+        return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    } catch (error: any) {
+        console.error("Presigned Download URL Error:", error);
+        return null;
     }
 }
 

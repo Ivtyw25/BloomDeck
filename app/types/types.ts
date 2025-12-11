@@ -31,6 +31,7 @@ export interface SourceDocument {
   dateAdded: string; // ISO String for sorting
   size?: string; // Optional for YouTube
   trashDate?: string; // Optional for Trash items
+  url?: string | string[];
 }
 
 export type MaterialType = 'FLASHCARD' | 'NOTE';

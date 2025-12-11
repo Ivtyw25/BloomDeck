@@ -1,6 +1,6 @@
 "use client"
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { useFlashcardStudy } from '@/components/flashcard/useFlashcardStudy';
+import { useFlashcardStudy } from '@/components/hooks/useFlashcardStudy';
 import StudyHeader from '@/components/flashcard/StudyHeader';
 import StudyDisplay from '@/components/flashcard/StudyDisplay';
 import StudyControls from '@/components/flashcard/StudyControls';

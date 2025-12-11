@@ -14,7 +14,7 @@ interface FilterableItem {
 
 interface UseResourceFilterProps<T extends FilterableItem> {
     items: T[];
-    dateField?: keyof T; // e.g., 'dateAdded' or 'dateCreated'
+    dateField?: keyof T; 
 }
 
 export function useResourceFilter<T extends FilterableItem>({ items, dateField = 'dateAdded' }: UseResourceFilterProps<T>) {
