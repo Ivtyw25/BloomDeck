@@ -78,7 +78,7 @@ export async function getSourceById(id: string): Promise<SourceDocument | null> 
     if (data.type !== 'YOUTUBE' && data.file_url) {
         const urls = Array.isArray(data.file_url) ? data.file_url : [data.file_url];
         const signedUrls = await Promise.all(urls.map(async (url: string) => {
-            const key = extractKeyFromUrl(url);
+            const key = await extractKeyFromUrl(url);
             if (key) {
                 return await getPresignedDownloadUrl(key) || url;
             }
