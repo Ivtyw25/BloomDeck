@@ -1,8 +1,9 @@
 'use server';
 
 import { supabase } from '@/lib/supabase';
-import { SourceDocument, FileType } from "@/app/types/types";
+import { SourceDocument, FileType, SourceChat } from "@/app/types/types";
 import { deleteFilesFromS3 } from '@/services/upload';
+import { getPresignedDownloadUrl } from '@/services/upload';
 
 export interface CreateSourceParams {
     title: string;
@@ -69,7 +70,8 @@ export async function getSources(inTrash: boolean = false): Promise<SourceDocume
         containedTypes: item.type === 'MIXED' ? (item.containedTypes as FileType[]) : undefined,
         dateAdded: item.created_at,
         size: item.type !== 'YOUTUBE' ? item.size : undefined,
-        trashDate: item.trashed_at
+        trashDate: item.trashed_at,
+        fileSearchStoreID: item.type !== 'YOUTUBE' ? item.FileStoresID : undefined
     }));
 }
 
@@ -89,8 +91,6 @@ const extractKey = (url: string) => {
         return null;
     }
 };
-
-import { getPresignedDownloadUrl } from '@/services/upload';
 
 export async function getSourceById(id: string): Promise<SourceDocument | null> {
     const { data, error } = await supabase
@@ -117,7 +117,7 @@ export async function getSourceById(id: string): Promise<SourceDocument | null> 
             }
             return url;
         }));
-        
+
         signedUrl = Array.isArray(data.file_url) ? signedUrls : signedUrls[0];
     } else {
         signedUrl = data.youtube_url;
@@ -131,8 +131,21 @@ export async function getSourceById(id: string): Promise<SourceDocument | null> 
         dateAdded: data.created_at,
         size: data.type !== 'YOUTUBE' ? data.size : undefined,
         trashDate: data.trashed_at ? data.trashed_at : undefined,
-        url: signedUrl
+        url: signedUrl,
+        fileSearchStoreID: data.type !== 'YOUTUBE' ? data.FileStoresID : undefined
     };
+}
+
+export async function updateFileSearchStoresID(id: string, fileSearchStoreID: string | null) {
+    const { error } = await supabase
+        .from('Sources-Table')
+        .update({ FileStoresID: fileSearchStoreID })
+        .eq('id', id);
+
+    if (error) {
+        console.error("Supabase Update File Stored ID Error:", error);
+        throw new Error(`Failed to update file stored ID: ${error.message}`);
+    }
 }
 
 export async function toggleTrashSource(id: string, inTrash: boolean) {
@@ -165,6 +178,13 @@ export async function deleteSource(id: string) {
         await deleteFilesFromS3(data.file_url);
     }
 
+    // Delete associated chat history
+    try {
+        await deleteSourceChat(id);
+    } catch (e) {
+        console.error("Error deleting chat history:", e);
+    }
+
     // Delete from Supabase
     const { error: deleteError } = await supabase
         .from('Sources-Table')
@@ -174,5 +194,46 @@ export async function deleteSource(id: string) {
     if (deleteError) {
         console.error("Supabase Delete Error:", deleteError);
         throw new Error(`Failed to delete source: ${deleteError.message}`);
+    }
+}
+
+export async function getSourceChat(id: string): Promise<SourceChat[]> {
+    const { data, error } = await supabase
+        .from('Sources-Chat')
+        .select('id, role, chat')
+        .eq('source_id', id)
+        .order('created_at', { ascending: true })
+
+    if (error) {
+        console.error("Supabase Fetch for Chat Error:", error);
+        throw new Error(`Failed to fetch sources: ${error.message}`);
+    }
+    return (data || []).map((chat: any) => ({
+        id: chat.id,
+        role: chat.role,
+        content: chat.chat
+    }));
+}
+
+export async function saveChatMessage(sourceId: string, role: string, content: string) {
+    const { error } = await supabase
+        .from('Sources-Chat')
+        .insert({ source_id: sourceId, role: role, chat: content });
+
+    if (error) {
+        console.error("Supabase Save Chat Error:", error);
+        throw new Error(`Failed to save chat message: ${error.message}`);
+    }
+}
+
+export async function deleteSourceChat(sourceId: string) {
+    const { error } = await supabase
+        .from('Sources-Chat')
+        .delete()
+        .eq('source_id', sourceId);
+
+    if (error) {
+        console.error("Supabase Delete Chat Error:", error);
+        throw new Error(`Failed to delete chat history: ${error.message}`);
     }
 }

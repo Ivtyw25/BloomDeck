@@ -1,5 +1,14 @@
 // for hero section flashcards view
+// Alias for backwards compatibility if needed, or just replace usages
+export type FlashcardData = Flashcard;
 export type FlashcardType = 'TEXT' | 'MULTIPLE_CHOICE' | 'TRUE_FALSE' | 'CODE_SNIPPET';
+export type roleType = 'model' | 'user'
+
+export interface SourceChat {
+  id: string,
+  role: roleType,
+  content: string,
+}
 
 export interface HeroFlashcardData {
   id: string;
@@ -17,8 +26,6 @@ export interface Flashcard {
   materialsFk: string;
 }
 
-// Alias for backwards compatibility if needed, or just replace usages
-export type FlashcardData = Flashcard;
 
 // type of file supported
 export type FileType = 'PDF' | 'DOCX' | 'PPT' | 'YOUTUBE' | 'MIXED';
@@ -32,6 +39,7 @@ export interface SourceDocument {
   size?: string; // Optional for YouTube
   trashDate?: string; // Optional for Trash items
   url?: string | string[];
+  fileSearchStoreID?: string;
 }
 
 export type MaterialType = 'FLASHCARD' | 'NOTE';

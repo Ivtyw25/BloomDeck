@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getSourceById } from '@/services/source';
+import { getSourceById, updateFileSearchStoresID } from '@/services/source';
 import { SourceDocument } from '@/types/types';
 import { toast } from 'sonner';
 import { Eye, Loader2, MessageSquare, Sparkles } from 'lucide-react';
@@ -14,6 +14,8 @@ import { ChatInterface } from '@/components/ui/ChatInterface';
 import { GenerationGrid } from '@/components/ui/GenerationGrid';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Tabs, TabsList, TabsTab, TabsPanels, TabsPanel } from '@/components/animate-ui/components/base/tabs';
+import { ConceptSummaryDialog } from '@/components/source/ConceptSummaryDialog';
+import { SuccessDialog } from '@/components/ui/SuccessDialog';
 
 // Hooks
 import { useChat } from '@/components/hooks/useChat';
@@ -27,11 +29,22 @@ export default function SourcePage() {
     const [source, setSource] = useState<SourceDocument | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Summary Feature State
+    const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
+    const [summaryResult, setSummaryResult] = useState('');
+    const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+
     // Custom hooks for chat and generation
     const chat = useChat({
-        initialMessage: source ? `Hi! I've analyzed "${source.title}". Ask me anything about it!` : undefined
+        sourceId: typeof sourceId === 'string' ? sourceId : '',
+        fileSearchStoreID: source?.fileSearchStoreID,
+        sourceTitle: source?.title
     });
-    const generation = useGeneration();
+
+    const generation = useGeneration({
+        sourceId: typeof sourceId === 'string' ? sourceId : '',
+        fileSearchStoreID: source?.fileSearchStoreID,
+    });
 
     // Fetch source data
     useEffect(() => {
@@ -42,13 +55,47 @@ export default function SourcePage() {
                 const data = await getSourceById(sourceId);
                 if (data) {
                     setSource(data);
+
+                    if (data.type !== 'YOUTUBE' && !data.fileSearchStoreID) {
+                        const response = await fetch('/api/ai/create-filestores', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                fileSearchStoreName: data.title,
+                                sourceId: sourceId,
+                                file_urls: data.url as Array<string>
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            console.error("Create filestore failed with status:", response.status);
+                            throw new Error(`Failed to create filestores: ${response.statusText}`);
+                        }
+
+                        // Parse JSON safely
+                        let result;
+                        try {
+                            result = await response.json();
+                        } catch (e) {
+                            console.error("Failed to parse create-filestores response:", e);
+                            throw new Error("Invalid response from server");
+                        }
+
+                        if (result.success && result.fileSearchStoreID) {
+                            setSource(prev => prev ? ({ ...prev, fileSearchStoreID: result.fileSearchStoreID }) : null);
+                            updateFileSearchStoresID(sourceId, result.fileSearchStoreID);
+                        }
+                    }
                 } else {
                     toast.error("Source not found");
                 }
             } catch (error) {
                 console.error("Failed to fetch source:", error);
                 toast.error("Failed to load source");
-            } finally {
+            }
+            finally {
                 setLoading(false);
             }
         };
@@ -60,10 +107,59 @@ export default function SourcePage() {
         router.back();
     };
 
+    const handleSummarySubmit = async (concept: string) => {
+        setIsSummaryLoading(true);
+        setSummaryResult(''); // Reset result on new submission
+
+        try {
+            const response = await fetch('/api/ai/concept-summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    concept,
+                    fileSearchStoreID: source?.fileSearchStoreID,
+                    sourceTitle: source?.title
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to generate summary");
+            }
+
+            if (!response.body) return;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullText = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value, { stream: true });
+                fullText += chunk;
+                setSummaryResult(fullText);
+            }
+
+        } catch (error) {
+            console.error("Summary error:", error);
+            toast.error("Failed to generate summary. Please try again.");
+        } finally {
+            setIsSummaryLoading(false);
+        }
+    };
+
+    const handleGenerate = (type: any) => {
+        if (type === 'summary') {
+            setIsSummaryDialogOpen(true);
+        } else if (type === 'flashcards') {
+            generation.generate(type);
+        }
+    };
+
     if (loading) {
         return (<div className="flex min-h-screen items-center justify-center">
-                    <Loader2 className="w-8 h-8 md:w-12 md:h-12 text-primary animate-spin" />
-                </div>);
+            <Loader2 className="w-8 h-8 md:w-12 md:h-12 text-primary animate-spin" />
+        </div>);
     }
 
     if (!source) {
@@ -107,20 +203,22 @@ export default function SourcePage() {
                         <SourcePreview type={source.type} url={source.url} containedTypes={source.containedTypes} />
                     </TabsPanel>
 
-                    <TabsPanel value="chat" className="min-h-[75vh] ">
+                    <TabsPanel value="chat" className="min-h-[70vh] ">
                         <ChatInterface
                             messages={chat.messages}
                             inputMessage={chat.inputMessage}
                             isTyping={chat.isTyping}
+                            isLoading={chat.isLoading}
                             chatEndRef={chat.chatEndRef}
                             onInputChange={chat.setInputMessage}
                             onSendMessage={chat.sendMessage}
+                            onClearChat={chat.clearChat}
                         />
                     </TabsPanel>
 
                     <TabsPanel value="generate" className="h-full min-h-[80vh] md:min-h-[60vh]">
                         <GenerationGrid
-                            onGenerate={generation.generate}
+                            onGenerate={handleGenerate}
                             isGenerating={generation.isGenerating}
                             isSuccess={generation.isSuccess}
                             disabled={generation.isAnyGenerating}
@@ -128,6 +226,22 @@ export default function SourcePage() {
                     </TabsPanel>
                 </TabsPanels>
             </Tabs>
+
+            <ConceptSummaryDialog
+                isOpen={isSummaryDialogOpen}
+                onClose={() => setIsSummaryDialogOpen(false)}
+                onSubmit={handleSummarySubmit}
+                isLoading={isSummaryLoading}
+                summary={summaryResult}
+            />
+
+            <SuccessDialog
+                isOpen={generation.isSuccess('flashcards')}
+                onClose={generation.resetSuccess}
+                title={generation.generatedTitle}
+                materialId={generation.generatedMaterialId || ''}
+                type="flashcards"
+            />
         </div>
     );
 };

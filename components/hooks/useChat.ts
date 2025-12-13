@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { getSourceChat, saveChatMessage, deleteSourceChat } from '@/services/source';
+import { toast } from 'sonner';
 
 export interface ChatMessage {
     role: 'user' | 'ai';
@@ -6,55 +8,145 @@ export interface ChatMessage {
 }
 
 interface UseChatProps {
-    initialMessage?: string;
+    sourceId: string;
+    fileSearchStoreID?: string | null;
+    sourceTitle?: string;
 }
 
-export function useChat({ initialMessage }: UseChatProps = {}) {
+export function useChat({ sourceId, fileSearchStoreID, sourceTitle }: UseChatProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputMessage, setInputMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
-    // Initialize with welcome message
+    // Fetch chat history
     useEffect(() => {
-        if (initialMessage) {
-            setMessages([{ role: 'ai', text: initialMessage }]);
+        let isMounted = true;
+        async function fetchHistory() {
+            if (!sourceId) return;
+
+            try {
+                const history = await getSourceChat(sourceId);
+                if (isMounted && history) {
+                    setMessages(history.map(msg => ({
+                        role: msg.role === 'model' ? 'ai' : 'user', // Map database role 'model' to 'ai'
+                        text: msg.content
+                    })));
+                }
+            } catch (error) {
+                console.error("Failed to load chat history", error);
+                toast.error("Failed to load chat history");
+            } finally {
+                if (isMounted) setIsLoading(false);
+            }
         }
-    }, [initialMessage]);
+        fetchHistory();
+        return () => { isMounted = false; };
+    }, [sourceId]);
 
     // Auto-scroll to bottom
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+    }, [messages, isTyping]);
 
-    const sendMessage = () => {
-        if (!inputMessage.trim()) return;
+    const sendMessage = async () => {
+        if (!inputMessage.trim() || !sourceId) return;
 
-        const newMsg: ChatMessage = { role: 'user', text: inputMessage };
-        setMessages(prev => [...prev, newMsg]);
+        const text = inputMessage;
         setInputMessage('');
+
+        const newMsg: ChatMessage = { role: 'user', text };
+        setMessages(prev => [...prev, newMsg]);
+
+        try {
+            await saveChatMessage(sourceId, 'user', text);
+        } catch (error) {
+            console.error("Failed to save user message", error);
+            // toast.error("Failed to save user message");
+        }
+
         setIsTyping(true);
+        let fullAiResponse = "";
 
-        // Mock AI Response
-        setTimeout(() => {
-            const aiResponses = [
-                "That's a key concept in this document. Specifically, it relates to...",
-                "Based on the source material, the answer is yes. The author argues that...",
-                "Here is a summary of that section: It primarily focuses on..."
-            ];
-            const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+        // Add a placeholder AI message for streaming
+        setMessages(prev => [...prev, { role: 'ai', text: "" }]);
 
-            setMessages(prev => [...prev, { role: 'ai', text: randomResponse }]);
+        try {
+            const response = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    history: messages, // Send existing history
+                    fileSearchStoreID,
+                    
+                })
+            });
+
+            if (!response.ok || !response.body) {
+                throw new Error("Failed to fetch chat response");
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                fullAiResponse += chunk;
+
+                setMessages(prev => {
+                    const newArr = [...prev];
+                    const lastMsg = newArr[newArr.length - 1];
+                    if (lastMsg.role === 'ai') {
+                        lastMsg.text = fullAiResponse;
+                    }
+                    return newArr;
+                });
+            }
+
+            // Save final AI message
+            await saveChatMessage(sourceId, 'model', fullAiResponse);
+
+        } catch (error) {
+            console.error("Chat Error:", error);
+            toast.error("Failed to generate response");
+            setMessages(prev => {
+                const newArr = [...prev];
+                if (newArr[newArr.length - 1].role === 'ai' && newArr[newArr.length - 1].text === "") {
+                    return newArr.slice(0, -1);
+                }
+                return newArr;
+            });
+
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
+    };
+
+    const clearChat = async () => {
+        if (!sourceId) return;
+        try {
+            await deleteSourceChat(sourceId);
+            setMessages([]);
+            toast.success("Chat history cleared");
+        } catch (error) {
+            console.error("Failed to clear chat", error);
+            toast.error("Failed to clear chat history");
+        }
     };
 
     return {
         messages,
         inputMessage,
         isTyping,
+        isLoading,
         chatEndRef,
         setInputMessage,
-        sendMessage
+        sendMessage,
+        clearChat
     };
 }

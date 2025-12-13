@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
         const systemInstruction = `
             <role>
-            You are Gemini 3, a specialized assistant for Education and Concept Simplification.
+            You are a specialized assistant for Education and Concept Simplification.
             You are precise, analytical, and persistent.
             </role>
 
@@ -64,32 +64,16 @@ export async function POST(req: NextRequest) {
         const stream = new ReadableStream({
             async start(controller) {
                 const encoder = new TextEncoder();
-                try {
-                    const streamSource = result;
-                    // @ts-ignore
-                    for await (const chunk of streamSource) {
-                        let text = '';
-                        const c = chunk as any;
-                        if (c.candidates?.[0]?.content?.parts?.[0]?.text) {
-                            text = c.candidates[0].content.parts[0].text;
-                        }
-                        else if (typeof c.text === 'function') {
-                            text = c.text();
-                        }
-                        else if (c.text) {
-                            text = c.text;
-                        }
-                        if (text) {
-                            controller.enqueue(encoder.encode(text));
-                        }
+                for await (const chunk of result) {
+                    const text = chunk.text;
+                    if (text) {
+                        controller.enqueue(encoder.encode(text));
                     }
-                } catch (err) {
-                    controller.error(err);
-                } finally {
-                    controller.close();
                 }
+                controller.close();
             }
         });
+
         return new NextResponse(stream, {
             headers: {
                 'Content-Type': 'text/plain; charset=utf-8',

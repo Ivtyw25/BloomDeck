@@ -107,7 +107,6 @@ export async function deleteFilesFromS3(fileUrls: string[]) {
 
     try {
         await s3Client.send(command);
-        console.log("Deleted files from S3:", keys);
     } catch (error: any) {
         console.error("S3 Delete Error:", error);
     }

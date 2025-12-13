@@ -70,7 +70,7 @@ export function GenerationCard({
             <button
                 onClick={onGenerate}
                 disabled={disabled}
-                className={`mt-6 w-full py-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${config.buttonBg} ${config.buttonText} ${config.buttonHover} disabled:opacity-70 text-sm`}
+                className={`mt-6 cursor-pointer active:scale-95 w-full py-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${config.buttonBg} ${config.buttonText} ${config.buttonHover} disabled:opacity-70 text-sm`}
             >
                 {getButtonContent()}
             </button>

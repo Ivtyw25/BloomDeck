@@ -1,29 +1,76 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
+import { saveGeneratedDeck } from '@/services/material';
 
 export type GenerationType = 'flashcards' | 'summary' | 'notes';
 
-export function useGeneration() {
+interface UseGenerationProps {
+    sourceId: string;
+    fileSearchStoreID?: string;
+}
+
+export function useGeneration({ sourceId, fileSearchStoreID }: UseGenerationProps) {
     const [generatingItem, setGeneratingItem] = useState<GenerationType | null>(null);
     const [successItem, setSuccessItem] = useState<GenerationType | null>(null);
+    const [generatedMaterialId, setGeneratedMaterialId] = useState<string | null>(null);
+    const [generatedTitle, setGeneratedTitle] = useState<string>('');
 
-    const generate = (type: GenerationType) => {
+    const generate = async (type: GenerationType) => {
+        if (!sourceId || !fileSearchStoreID) {
+            toast.error("Source not ready for generation");
+            return;
+        }
+
         setGeneratingItem(type);
         setSuccessItem(null);
+        setGeneratedMaterialId(null);
 
-        // Mock Generation
-        setTimeout(() => {
+        try {
+            if (type === 'flashcards') {
+                const response = await fetch('/api/ai/generate-decks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileSearchStoreID })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to generate content");
+                }
+
+                if (!data.flashcards || !data.title) {
+                    throw new Error("Invalid AI response format");
+                }
+
+                const material = await saveGeneratedDeck(
+                    data.title,
+                    data.flashcards
+                );
+
+                setGeneratedMaterialId(material.id);
+                setGeneratedTitle(material.title);
+                setSuccessItem(type);
+                toast.success("Flashcards generated successfully!");
+            }
+            // Add other types here
+        } catch (error: any) {
+            console.error("Generation error:", error);
+            toast.error(error.message || "Failed to generate. Please try again.");
+        } finally {
             setGeneratingItem(null);
-            setSuccessItem(type);
-            setTimeout(() => setSuccessItem(null), 3000);
-        }, 2000);
+        }
     };
 
     return {
         generatingItem,
         successItem,
         generate,
+        generatedMaterialId,
+        generatedTitle,
         isGenerating: (type: GenerationType) => generatingItem === type,
         isSuccess: (type: GenerationType) => successItem === type,
-        isAnyGenerating: generatingItem !== null
+        isAnyGenerating: generatingItem !== null,
+        resetSuccess: () => setSuccessItem(null)
     };
 }

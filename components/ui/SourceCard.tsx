@@ -75,46 +75,50 @@ export default function SourceCard({ data, type }: SourceCardProps) {
     };
 
     return (
-        <Link href={`/source/${data.id}`} className="block h-full">
-            <div className="group bg-white rounded-2xl p-5 shadow-sm border border-gray-100/80 hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-200 transition-all duration-300 relative overflow-hidden flex flex-col h-full cursor-pointer">
+        <div className="group bg-white rounded-2xl p-5 shadow-sm border border-gray-100/80 hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-200 transition-all duration-300 relative overflow-hidden flex flex-col h-full ">
+            {/* Clickable Overlay Link */}
+            {type !== 'TRASH' && (
+                <Link href={`/source/${data.id}`} className="cursor-pointer absolute inset-0 z-0" aria-label={`View ${data.title}`} />
+            )}
 
-                {/* Selection/Hover Indicator - Left Border */}
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-green-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-full"></div>
+            {/* Selection/Hover Indicator - Left Border */}
+            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-green-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-full z-10"></div>
 
-                <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 w-full">
-                        <div className="shrink-0 pt-1">
-                            {renderIconArea()}
-                        </div>
-                        <div className="flex-1 min-w-0 py-1">
-                            <h3 className="font-heading font-bold text-gray-900 line-clamp-1 break-all text-sm lg:text-md leading-tight mb-1.5" >
-                                {data.title}
-                            </h3>
+            <div className="flex items-start justify-between h-full relative z-10 pointer-events-none">
+                <div className="flex items-start gap-4 w-full">
+                    <div className="shrink-0 pt-1">
+                        {renderIconArea()}
+                    </div>
+                    <div className="flex-1 min-w-0 py-1">
+                        <h3 className="font-heading font-bold text-gray-900 line-clamp-1 break-all text-sm lg:text-md leading-tight mb-1.5" >
+                            {data.title}
+                        </h3>
 
-                            {/* Meta Info Row */}
-                            <div className="flex flex-wrap items-center gap-2 text-xs lg:text-[13px] font-medium text-gray-400">
-                                <span className="uppercase text-gray-500 font-semibold text-[10px] lg:text-xs tracking-wide">{data.type === 'MIXED' ? 'Mixed Sources' : data.type}</span>
+                        {/* Meta Info Row */}
+                        <div className="flex flex-wrap items-center gap-2 text-xs lg:text-[13px] font-medium text-gray-400">
+                            <span className="uppercase text-gray-500 font-semibold text-[10px] lg:text-xs tracking-wide">{data.type === 'MIXED' ? 'Mixed Sources' : data.type}</span>
 
-                                {data.size && (
-                                    <>
-                                        <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                        <span>{data.size}</span>
-                                    </>
-                                )}
+                            {data.size && (
+                                <>
+                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                    <span>{data.size}</span>
+                                </>
+                            )}
 
-                                <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                <span suppressHydrationWarning>
-                                    {type === 'TRASH' && data.trashDate
-                                        ? `trashed ${getTimeAgoString(data.trashDate)}`
-                                        : `created ${getTimeAgoString(data.dateAdded)}`}
-                                </span>
-                            </div>
+                            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                            <span suppressHydrationWarning>
+                                {type === 'TRASH' && data.trashDate
+                                    ? `trashed ${getTimeAgoString(data.trashDate)}`
+                                    : `created ${getTimeAgoString(data.dateAdded)}`}
+                            </span>
                         </div>
                     </div>
+                </div>
 
-                    <CardPopover type={type} id={data.id} title={data.title} docType="SOURCE" />
+                <div className="pointer-events-auto">
+                    <CardPopover type={type} id={data.id} title={data.title} docType="SOURCE" fileStoresId={data.fileSearchStoreID || null} />
                 </div>
             </div>
-        </Link>
+        </div>
     );
 };

@@ -53,14 +53,20 @@ export function ConfirmationDialog({
 
                     <DialogFooter className="flex justify-end gap-3 mt-6">
                         <button
-                            onClick={onClose}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onClose();
+                            }}
                             disabled={isLoading}
                             className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                         >
                             {cancelText}
                         </button>
                         <button
-                            onClick={onConfirm}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onConfirm();
+                            }}
                             disabled={isLoading}
                             className="px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                         >

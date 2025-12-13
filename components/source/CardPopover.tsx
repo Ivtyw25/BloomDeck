@@ -10,12 +10,13 @@ import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog';
 
 interface CardPopoverProps {
     type: 'SOURCE' | 'TRASH';
-    id: string;
+    id: string;     
+    fileStoresId: string | null;
     title: string;
     docType: 'SOURCE' | 'MATERIAL';
 }
 
-export function CardPopover({ type, id, title, docType }: CardPopoverProps) {
+export function CardPopover({ type, id, title, docType, fileStoresId }: CardPopoverProps) {
     const router = useRouter();
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -82,6 +83,15 @@ export function CardPopover({ type, id, title, docType }: CardPopoverProps) {
         try {
             if (docType === 'SOURCE') {
                 await deleteSource(id);
+                if (fileStoresId) {
+                    await fetch('/api/ai/delete-filestores', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ sourceId: id, fileStoresId }),
+                    });
+                }
             } else {
                 await deleteMaterial(id);
             }

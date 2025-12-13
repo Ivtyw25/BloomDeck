@@ -253,7 +253,7 @@ export default function UploadPage() {
                     <button
                         onClick={handleSubmit}
                         disabled={isSubmitting || (mode === 'FILES' && (files.length === 0 || files.length > 2)) || (mode === 'YOUTUBE' && !youtubeLink)}
-                        className="cursor-pointer px-10 py-3.5 bg-green-300 text-gray-50 font-semibold rounded-xl hover:bg-green-400 transition-all shadow-md shadow-[#b5d365]/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none active:scale-95 flex items-center gap-2"
+                        className="cursor-pointer px-10 py-3.5 bg-primary text-gray-50 font-semibold rounded-xl hover:bg-primary-hover transition-all shadow-md shadow-[#b5d365]/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none active:scale-95 flex items-center gap-2"
                     >
                         {isSubmitting ? (
                             <>

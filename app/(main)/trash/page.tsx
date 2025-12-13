@@ -45,7 +45,6 @@ export default function TrashPage() {
                 event: '*',
                 schema: 'public',
                 table: 'Sources-Table',
-                filter: 'inTrash=eq.true' // Only listen for trash items? Actually generic changes might affect list (e.g. restoring)
             }, () => {
                 fetchTrash();
             })

@@ -50,7 +50,7 @@ export default function MaterialCard({ data, type }: MaterialCardProps) {
                     </span>
                 </div>
                 <div className='items-center gap-2 flex'>
-                    <CardPopover type={type} id={data.id} title={data.title} docType="MATERIAL" />
+                    <CardPopover type={type} id={data.id} title={data.title} docType="MATERIAL" fileStoresId={null} />
                 </div>
             </div>
 

@@ -28,11 +28,11 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
                                 {children}
                             </code>
                         ) : (
-                            <div className="bg-gray-900 rounded-lg p-3 my-1 mx-1 overflow-x-auto inline-block align-middle max-w-full">
+                            <span className="bg-gray-900 rounded-lg p-3 my-1 mx-1 overflow-x-auto inline-block align-middle max-w-full">
                                 <code className="text-sm font-mono text-gray-100 block" {...props}>
                                     {children}
                                 </code>
-                            </div>
+                            </span>
                         )
                     }
                 }}
