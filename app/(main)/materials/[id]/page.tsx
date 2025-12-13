@@ -143,6 +143,7 @@ function FlashcardStudyWrapper({ deckId, deckTitle, onBack }: FlashcardStudyWrap
     }
 
     const allCardsStarred = deck.length > 0 && deck.every(c => c.isStarred);
+    const isBackDisabled = isExplaining || isUpdating;
 
     return (
         <div className={`flex flex-col max-w-full animate-slide-in-right ${isFullScreen ? 'fixed inset-0 z-50 overflow-hidden' : 'container mx-auto px-4 sm:px-6 py-4 min-h-screen'}`}>
@@ -153,8 +154,9 @@ function FlashcardStudyWrapper({ deckId, deckTitle, onBack }: FlashcardStudyWrap
                     totalTerms={deck.length}
                     currentIndex={currentIndex}
                     totalActive={activeDeck.length}
-                    onBack={onBack}
+                    onBack={() => !isBackDisabled && onBack()}
                     onDeleteSet={() => setIsDeleteDialogOpen(true)}
+                    disabled={isBackDisabled}
                 />
             )}
 

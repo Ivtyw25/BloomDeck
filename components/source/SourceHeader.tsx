@@ -6,9 +6,10 @@ interface SourceHeaderProps {
     type: FileType;
     size?: string;
     onBack: () => void;
+    disabled?: boolean;
 }
 
-export function SourceHeader({ title, type, size, onBack }: SourceHeaderProps) {
+export function SourceHeader({ title, type, size, onBack, disabled }: SourceHeaderProps) {
     const getIconForType = (fileType: FileType) => {
         if (fileType === 'YOUTUBE') return <PlayCircle className="w-4 h-4 text-red-500" />;
         return <FileText className="w-4 h-4 text-primary" />;
@@ -18,9 +19,13 @@ export function SourceHeader({ title, type, size, onBack }: SourceHeaderProps) {
         <div className="flex flex-col gap-4 sm:gap-6 mb-6 sm:mb-8">
             <button
                 onClick={onBack}
-                className="flex cursor-pointer group items-center gap-2 text-gray-600 hover:text-gray-900 text-sm transition-colors font-medium self-start "
+                disabled={disabled}
+                className={`flex items-center gap-2 text-sm font-medium self-start transition-colors ${disabled
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-gray-600 hover:text-gray-900 cursor-pointer group'
+                    }`}
             >
-                <ArrowLeft className={`w-4 h-4 transition-transform group-hover:-translate-x-1`} />
+                <ArrowLeft className={`w-4 h-4 transition-transform ${!disabled && 'group-hover:-translate-x-1'}`} />
                 Back
             </button>
 

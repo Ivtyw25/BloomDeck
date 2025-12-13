@@ -10,16 +10,21 @@ interface StudyHeaderProps {
     totalActive: number;
     onBack: () => void;
     onDeleteSet: () => void; // Added prop
+    disabled?: boolean;
 }
 
-export default function StudyHeader({ title, totalTerms, currentIndex, totalActive, onBack, onDeleteSet }: StudyHeaderProps) {
+export default function StudyHeader({ title, totalTerms, currentIndex, totalActive, onBack, onDeleteSet, disabled }: StudyHeaderProps) {
     return (
         <div className="mb-6 sm:mb-8">
             <button
                 onClick={onBack}
-                className="cursor-pointer mb-6 sm:mb-8 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium group"
+                disabled={disabled}
+                className={`cursor-pointer mb-6 sm:mb-8 flex items-center gap-2 transition-colors text-sm font-medium group ${disabled
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-gray-500 hover:text-gray-900'
+                    }`}
             >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft className={`w-4 h-4 transition-transform ${!disabled && 'group-hover:-translate-x-1'}`} />
                 Back
             </button>
 

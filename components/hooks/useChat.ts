@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { getSourceChat, saveChatMessage, deleteSourceChat } from '@/services/source';
 import { toast } from 'sonner';
+import { SourceDocument, FileType } from '@/app/types/types';
 
 export interface ChatMessage {
     role: 'user' | 'ai';
@@ -10,19 +11,24 @@ export interface ChatMessage {
 interface UseChatProps {
     sourceId: string;
     fileSearchStoreID?: string | null;
+    data?: SourceDocument;
     sourceTitle?: string;
 }
 
-export function useChat({ sourceId, fileSearchStoreID, sourceTitle }: UseChatProps) {
+export function useChat({ sourceId, fileSearchStoreID, data, sourceTitle }: UseChatProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputMessage, setInputMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [type, setType] = useState<FileType | null>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
     // Fetch chat history
     useEffect(() => {
         let isMounted = true;
+        if (data) {
+            setType(data.type);
+        }
         async function fetchHistory() {
             if (!sourceId) return;
 
@@ -63,7 +69,6 @@ export function useChat({ sourceId, fileSearchStoreID, sourceTitle }: UseChatPro
             await saveChatMessage(sourceId, 'user', text);
         } catch (error) {
             console.error("Failed to save user message", error);
-            // toast.error("Failed to save user message");
         }
 
         setIsTyping(true);
@@ -80,7 +85,8 @@ export function useChat({ sourceId, fileSearchStoreID, sourceTitle }: UseChatPro
                     message: text,
                     history: messages, // Send existing history
                     fileSearchStoreID,
-                    
+                    sourceTitle,
+                    url: (data?.type === 'YOUTUBE' && typeof data.url === 'string') ? data.url : undefined
                 })
             });
 
@@ -107,10 +113,8 @@ export function useChat({ sourceId, fileSearchStoreID, sourceTitle }: UseChatPro
                     return newArr;
                 });
             }
-
             // Save final AI message
             await saveChatMessage(sourceId, 'model', fullAiResponse);
-
         } catch (error) {
             console.error("Chat Error:", error);
             toast.error("Failed to generate response");

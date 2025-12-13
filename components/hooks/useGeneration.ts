@@ -7,16 +7,17 @@ export type GenerationOption = 'flashcards' | 'summary' | 'notes';
 interface UseGenerationProps {
     sourceId: string;
     fileSearchStoreID?: string;
+    url?: string;
 }
 
-export function useGeneration({ sourceId, fileSearchStoreID }: UseGenerationProps) {
+export function useGeneration({ sourceId, fileSearchStoreID, url }: UseGenerationProps) {
     const [generatingItem, setGeneratingItem] = useState<GenerationOption | null>(null);
     const [successItem, setSuccessItem] = useState<GenerationOption | null>(null);
     const [generatedMaterialId, setGeneratedMaterialId] = useState<string | null>(null);
     const [generatedTitle, setGeneratedTitle] = useState<string>('');
 
     const generate = async (type: GenerationOption) => {
-        if (!sourceId || !fileSearchStoreID) {
+        if (!sourceId || (!fileSearchStoreID && !url)) {
             toast.error("Source not ready for generation");
             return;
         }
@@ -30,7 +31,7 @@ export function useGeneration({ sourceId, fileSearchStoreID }: UseGenerationProp
                 const response = await fetch('/api/ai/generate-decks', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileSearchStoreID })
+                    body: JSON.stringify({ fileSearchStoreID, url })
                 });
 
                 const data = await response.json();
@@ -56,7 +57,7 @@ export function useGeneration({ sourceId, fileSearchStoreID }: UseGenerationProp
                 const response = await fetch('/api/ai/create-notes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileSearchStoreID })
+                    body: JSON.stringify({ fileSearchStoreID, url })
                 });
 
                 const data = await response.json();

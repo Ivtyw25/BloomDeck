@@ -3,6 +3,8 @@ import { ArrowLeft, Calendar, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { MaterialItem } from '@/types/types';
 
+import remarkGfm from 'remark-gfm';
+
 interface NoteDetailViewProps {
     note: MaterialItem;
     onBack: () => void;
@@ -60,6 +62,7 @@ const NoteDetailView: React.FC<NoteDetailViewProps> = ({ note, onBack }) => {
                     {/* Note Content */}
                     <div className="prose prose-stone max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-li:text-gray-700">
                         <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
                             components={{
                                 h1: ({ children }) => <h1 className="text-3xl font-heading font-bold mb-4">{children}</h1>,
                                 h2: ({ children }) => <h2 className="text-2xl font-heading font-bold mb-3 mt-6 border-b pb-2">{children}</h2>,
@@ -77,6 +80,38 @@ const NoteDetailView: React.FC<NoteDetailViewProps> = ({ note, onBack }) => {
                                     <code className="bg-gray-100 text-red-500 px-1 py-0.5 rounded text-sm font-mono">
                                         {children}
                                     </code>
+                                ),
+                                table: ({ children }) => (
+                                    <div className="overflow-x-auto my-6 border border-gray-200 rounded-lg shadow-sm">
+                                        <table className="min-w-full divide-y divide-gray-200 text-sm">
+                                            {children}
+                                        </table>
+                                    </div>
+                                ),
+                                thead: ({ children }) => (
+                                    <thead className="bg-gray-50">
+                                        {children}
+                                    </thead>
+                                ),
+                                tbody: ({ children }) => (
+                                    <tbody className="divide-y divide-gray-200 bg-white">
+                                        {children}
+                                    </tbody>
+                                ),
+                                tr: ({ children }) => (
+                                    <tr className="hover:bg-gray-50 transition-colors">
+                                        {children}
+                                    </tr>
+                                ),
+                                th: ({ children }) => (
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-100/50">
+                                        {children}
+                                    </th>
+                                ),
+                                td: ({ children }) => (
+                                    <td className="px-4 py-3 whitespace-normal text-gray-600">
+                                        {children}
+                                    </td>
                                 ),
                             }}
                         >

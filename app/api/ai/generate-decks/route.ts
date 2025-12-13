@@ -4,7 +4,7 @@ import { z } from "zod";
 import { cleanJsonString } from '@/lib/ai-utils';
 
 export async function POST(req: NextRequest) {
-    
+
     const flashcardSchema = z.object({
         term: z.string().describe("The main text of the flashcard. This can be either: (1) a term extracted from the source, or (2) a question generated from the content. Keep it short, concise, easy to learn, and directly related to the source."),
         definition: z.string().describe("The explanation of the flashcard. This can be either: (1) the definition of the term, or (2) the answer to the question. Keep it short, clear, easy to understand, and directly based on the source."),
@@ -17,15 +17,15 @@ export async function POST(req: NextRequest) {
 
 
     try {
-        const { fileSearchStoreID } = await req.json();
+        const { fileSearchStoreID, url } = await req.json();
 
-        if (!fileSearchStoreID) {
-            return NextResponse.json({ error: "fileSearchStoreID is required" }, { status: 400 });
+        if (!fileSearchStoreID && !url) {
+            return NextResponse.json({ error: "fileSearchStoreID or url is required" }, { status: 400 });
         }
 
-        const systemInstruction = `
+        let systemInstruction = `
         <role>
-            You are an educator specialized in reading, understanding, and summarizing documents into high-quality flashcards. 
+            You are an educator specialized in reading, understanding, and summarizing documents or videos into high-quality flashcards. 
             Your purpose is to extract the essential ideas, main concepts, and key takeaways from the provided files and rewrite 
             them into concise, accurate study flashcards that help users grasp the content quickly.
         </role>
@@ -36,13 +36,13 @@ export async function POST(req: NextRequest) {
             3. The output must be parseable by JSON.parse() directly.
             4. Do cover all the important concepts from the source, Do NOT miss any.
             5. Do NOT include double quotes inside the term or definition fields. Use single quotes instead.
-            6. ALL information used to generate the title, terms, and definitions **MUST** come from the retrieved document chunks. 
+            6. ALL information used to generate the title, terms, and definitions **MUST** come from the retrieved document chunks or video content. 
             7. You must generate at least 5 and at most 40 flashcards.
             8. Do NOT include question marks in terms (e.g. What is, How does, Why is).
         </constraints>
 
         <instructions>
-            1. Read and deeply understand the content provided in the file(s).
+            1. Read and deeply understand the content provided in the file(s) or video.
             2. Identify the most important concepts, definitions, arguments, examples, and insights.
             3. Summarize each concept into clear flashcard pairs.
             4. For each flashcard, use the following keys:
@@ -64,10 +64,29 @@ export async function POST(req: NextRequest) {
         </output_format>
         `;
 
+        if (url) {
+            systemInstruction += `
+            <youtube_instructions>
+            - The provided content is a YouTube video.
+            - Extract key concepts visually shown or verbally explained in the video.
+            </youtube_instructions>
+            `;
+        }
+
         const prompt = `
             Generate a complete flashcard deck containing a title and an array of flashcards between 5 and 40 items.
             only output the JSON
         `;
+
+        const userContentParts: any[] = [{ text: prompt }];
+        if (url) {
+            userContentParts.push({
+                fileData: {
+                    mimeType: "video/mp4",
+                    fileUri: url
+                }
+            });
+        }
 
         const result = await genAI.models.generateContent({
             model: "gemini-2.5-flash",
@@ -75,13 +94,13 @@ export async function POST(req: NextRequest) {
                 systemInstruction: systemInstruction,
                 temperature: 0.6,
                 topP: 0.8,
-                tools: fileSearchStoreID ? [{
+                tools: (fileSearchStoreID && !url) ? [{
                     fileSearch: {
                         fileSearchStoreNames: [fileSearchStoreID]
                     }
                 }] : undefined,
             },
-            contents: [{ role: 'user', parts: [{ text: prompt }] }]
+            contents: [{ role: 'user', parts: userContentParts }]
         });
 
         let generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;

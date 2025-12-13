@@ -38,12 +38,14 @@ export default function SourcePage() {
     const chat = useChat({
         sourceId: typeof sourceId === 'string' ? sourceId : '',
         fileSearchStoreID: source?.fileSearchStoreID,
+        data: source || undefined,
         sourceTitle: source?.title
     });
 
     const generation = useGeneration({
         sourceId: typeof sourceId === 'string' ? sourceId : '',
         fileSearchStoreID: source?.fileSearchStoreID,
+        url: (source?.type === 'YOUTUBE' && typeof source.url === 'string') ? source.url : undefined
     });
 
     // Fetch source data
@@ -103,7 +105,10 @@ export default function SourcePage() {
         fetchSource();
     }, [sourceId]);
 
+    const isBackDisabled = generation.isAnyGenerating || isSummaryLoading;
+
     const handleBack = () => {
+        if (isBackDisabled) return;
         router.back();
     };
 
@@ -118,7 +123,8 @@ export default function SourcePage() {
                 body: JSON.stringify({
                     concept,
                     fileSearchStoreID: source?.fileSearchStoreID,
-                    sourceTitle: source?.title
+                    sourceTitle: source?.title,
+                    url: (source?.type === 'YOUTUBE' && typeof source.url === 'string') ? source.url : undefined
                 })
             });
 
@@ -181,6 +187,7 @@ export default function SourcePage() {
                 type={source.type}
                 size={source.size}
                 onBack={handleBack}
+                disabled={isBackDisabled}
             />
 
             {/* Main Content Container */}
