@@ -93,7 +93,9 @@ export async function deleteFilesFromS3(fileUrls: string[]) {
         throw new Error("AWS_S3_BUCKET is not defined");
     }
 
-    const keys = fileUrls.map(url => extractKeyFromUrl(url)).filter(key => key !== null) as string[];
+    const keyPromises = fileUrls.map(url => extractKeyFromUrl(url));
+    const resolvedKeys = await Promise.all(keyPromises);
+    const keys = resolvedKeys.filter((key): key is string => key !== null);
 
     if (keys.length === 0) return;
 
