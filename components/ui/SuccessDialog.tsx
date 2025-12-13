@@ -11,13 +11,14 @@ import {
 } from '@/components/animate-ui/primitives/radix/dialog';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { GenerationOption } from '@/components/hooks/useGeneration';
 
 interface SuccessDialogProps {
     isOpen: boolean;
     onClose: () => void;
     title: string;
     materialId: string;
-    type: 'flashcards' | 'notes';
+    type: Exclude<GenerationOption, 'summary'>;
 }
 
 export function SuccessDialog({ isOpen, onClose, title, materialId, type }: SuccessDialogProps) {

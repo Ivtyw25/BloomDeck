@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getSources } from '@/services/source';
 import { useGeneration } from '@/components/hooks/useGeneration';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
-import { SourceDocument } from '@/types/types';
+import { SourceDocument } from '@/app/types/types';
 import { Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 

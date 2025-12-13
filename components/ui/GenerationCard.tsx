@@ -1,9 +1,11 @@
 import { Layers, Lightbulb, FileText, Loader2, CheckCircle } from 'lucide-react';
 
-export type GenerationType = 'flashcards' | 'summary' | 'notes';
+import { GenerationOption } from '@/components/hooks/useGeneration';
+
+export type { GenerationOption };
 
 interface GenerationCardProps {
-    type: GenerationType;
+    type: GenerationOption;
     title: string;
     description: string;
     icon: 'flashcards' | 'summary' | 'notes';

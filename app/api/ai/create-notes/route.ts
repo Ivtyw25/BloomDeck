@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { genAI } from '@/lib/gemini';
 import { z } from "zod";
+import { cleanJsonString } from '@/lib/ai-utils';
 
 export async function POST(req: NextRequest) {
     // Schema for validation
@@ -89,10 +90,10 @@ export async function POST(req: NextRequest) {
         }
 
         // Clean up code blocks if the model ignores the "no markdown" rule
-        generatedText = generatedText.replace(/```json\n?|\n?```/g, "").trim();
+        const cleanedText = cleanJsonString(generatedText);
 
         console.log("\nRaw Result:", generatedText);
-        const parsedResult = JSON.parse(generatedText);
+        const parsedResult = JSON.parse(cleanedText);
         const validatedResult = notesSchema.parse(parsedResult);
 
         return NextResponse.json({ ...validatedResult });

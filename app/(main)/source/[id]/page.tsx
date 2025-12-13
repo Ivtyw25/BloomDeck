@@ -19,7 +19,7 @@ import { SuccessDialog } from '@/components/ui/SuccessDialog';
 
 // Hooks
 import { useChat } from '@/components/hooks/useChat';
-import { useGeneration } from '@/components/hooks/useGeneration';
+import { useGeneration, GenerationOption } from '@/components/hooks/useGeneration';
 
 export default function SourcePage() {
     const router = useRouter();
@@ -148,7 +148,7 @@ export default function SourcePage() {
         }
     };
 
-    const handleGenerate = (type: any) => {
+    const handleGenerate = (type: GenerationOption) => {
         if (type === 'summary') {
             setIsSummaryDialogOpen(true);
         } else if (type === 'flashcards') {
@@ -246,4 +246,4 @@ export default function SourcePage() {
             />
         </div>
     );
-};
+}

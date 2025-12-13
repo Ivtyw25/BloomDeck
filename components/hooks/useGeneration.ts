@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { saveGeneratedDeck, saveGeneratedNote } from '@/services/material';
 
-export type GenerationType = 'flashcards' | 'summary' | 'notes';
+export type GenerationOption = 'flashcards' | 'summary' | 'notes';
 
 interface UseGenerationProps {
     sourceId: string;
@@ -10,12 +10,12 @@ interface UseGenerationProps {
 }
 
 export function useGeneration({ sourceId, fileSearchStoreID }: UseGenerationProps) {
-    const [generatingItem, setGeneratingItem] = useState<GenerationType | null>(null);
-    const [successItem, setSuccessItem] = useState<GenerationType | null>(null);
+    const [generatingItem, setGeneratingItem] = useState<GenerationOption | null>(null);
+    const [successItem, setSuccessItem] = useState<GenerationOption | null>(null);
     const [generatedMaterialId, setGeneratedMaterialId] = useState<string | null>(null);
     const [generatedTitle, setGeneratedTitle] = useState<string>('');
 
-    const generate = async (type: GenerationType) => {
+    const generate = async (type: GenerationOption) => {
         if (!sourceId || !fileSearchStoreID) {
             toast.error("Source not ready for generation");
             return;
@@ -95,8 +95,8 @@ export function useGeneration({ sourceId, fileSearchStoreID }: UseGenerationProp
         generate,
         generatedMaterialId,
         generatedTitle,
-        isGenerating: (type: GenerationType) => generatingItem === type,
-        isSuccess: (type: GenerationType) => successItem === type,
+        isGenerating: (type: GenerationOption) => generatingItem === type,
+        isSuccess: (type: GenerationOption) => successItem === type,
         isAnyGenerating: generatingItem !== null,
         resetSuccess: () => setSuccessItem(null)
     };

@@ -7,7 +7,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const BUCKET_NAME = process.env.AWS_S3_BUCKET;
 const REGION = process.env.AWS_REGION || "ap-southeast-1";
 
-const extractKeyFromUrl = (url: string) => {
+export async function extractKeyFromUrl(url: string) {
     try {
         const urlObj = new URL(url);
         // Remove the leading slash

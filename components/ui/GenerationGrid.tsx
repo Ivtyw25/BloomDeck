@@ -1,9 +1,9 @@
-import { GenerationCard, GenerationType } from './GenerationCard';
+import { GenerationCard, GenerationOption } from './GenerationCard';
 
 interface GenerationGridProps {
-    onGenerate: (type: GenerationType) => void;
-    isGenerating: (type: GenerationType) => boolean;
-    isSuccess: (type: GenerationType) => boolean;
+    onGenerate: (type: GenerationOption) => void;
+    isGenerating: (type: GenerationOption) => boolean;
+    isSuccess: (type: GenerationOption) => boolean;
     disabled?: boolean;
 }
 

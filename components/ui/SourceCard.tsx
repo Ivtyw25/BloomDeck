@@ -3,6 +3,7 @@ import { FileText, File, Presentation, FileCode } from 'lucide-react';
 import { YouTubeIcon } from '@/lib/icons';
 import { CardPopover } from '@/components/source/CardPopover';
 import Link from 'next/link';
+import { getTimeAgoString } from '@/lib/time-utils';
 
 interface SourceCardProps {
     data: SourceDocument;
@@ -11,24 +12,7 @@ interface SourceCardProps {
 
 export default function SourceCard({ data, type }: SourceCardProps) {
 
-    // Helper to calculate "Time Ago"
-    const getTimeAgoString = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-        let interval = seconds / 31536000;
-        if (interval > 1) return Math.floor(interval) + " years ago";
-        interval = seconds / 2592000;
-        if (interval > 1) return Math.floor(interval) + " months ago";
-        interval = seconds / 86400;
-        if (interval > 1) return Math.floor(interval) + " days ago";
-        interval = seconds / 3600;
-        if (interval > 1) return Math.floor(interval) + " hours ago";
-        interval = seconds / 60;
-        if (interval > 1) return Math.floor(interval) + " mins ago";
-        return "Just now";
-    };
 
     const getSingleIcon = (type: FileType, className: string) => {
         switch (type) {

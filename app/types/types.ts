@@ -1,12 +1,12 @@
 // for hero section flashcards view
 // Alias for backwards compatibility if needed, or just replace usages
 export type FlashcardData = Flashcard;
+export type RoleType = 'model' | 'user'
 export type FlashcardType = 'TEXT' | 'MULTIPLE_CHOICE' | 'TRUE_FALSE' | 'CODE_SNIPPET';
-export type roleType = 'model' | 'user'
 
 export interface SourceChat {
   id: string,
-  role: roleType,
+  role: RoleType,
   content: string,
 }
 

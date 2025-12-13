@@ -10,13 +10,7 @@ export interface CreateMaterialParams {
     preview?: string;
 }
 
-/**
- * Fetches materials from the "Materials-Table" in Supabase.
- * This runs on the server.
- * 
- * @param inTrash Whether to fetch items in trash or not. Defaults to false.
- * @returns An array of MaterialItem objects.
- */
+
 export async function getMaterials(inTrash: boolean = false): Promise<MaterialItem[]> {
     let query = supabase
         .from('Materials-Table')
@@ -68,7 +62,8 @@ export async function getMaterial(id: string): Promise<MaterialItem | null> {
         inTrash: data.inTrash,
         trashedAt: data.trashed_at,
         createdAt: data.created_at,
-        content: data.content
+        content: data.content,
+        preview: data.preview // Include preview
     };
 }
 

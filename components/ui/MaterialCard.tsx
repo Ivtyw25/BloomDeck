@@ -7,29 +7,14 @@ interface MaterialCardProps {
     type: 'SOURCE' | 'TRASH';
 }
 
+
 import { useRouter } from 'next/navigation';
+import { getTimeAgoString } from '@/lib/time-utils';
 
 export default function MaterialCard({ data, type }: MaterialCardProps) {
     const router = useRouter();
 
-    // Helper to calculate "Time Ago" (reused logic)
-    const getTimeAgoString = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-        let interval = seconds / 31536000;
-        if (interval > 1) return Math.floor(interval) + " years ago";
-        interval = seconds / 2592000;
-        if (interval > 1) return Math.floor(interval) + " months ago";
-        interval = seconds / 86400;
-        if (interval > 1) return Math.floor(interval) + " days ago";
-        interval = seconds / 3600;
-        if (interval > 1) return Math.floor(interval) + " hours ago";
-        interval = seconds / 60;
-        if (interval > 1) return Math.floor(interval) + " mins ago";
-        return "Just now";
-    };
 
     const isFlashcard = data.type === 'FLASHCARD';
 

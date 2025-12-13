@@ -2,8 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { SourceDocument, FileType, SourceChat } from "@/app/types/types";
-import { deleteFilesFromS3 } from '@/services/upload';
-import { getPresignedDownloadUrl } from '@/services/upload';
+import { deleteFilesFromS3, getPresignedDownloadUrl, extractKeyFromUrl } from '@/services/upload';
 
 export interface CreateSourceParams {
     title: string;
@@ -14,13 +13,6 @@ export interface CreateSourceParams {
     youtube_url?: string | null;
 }
 
-/**
- * Inserts a new row into the "Source-Table" in Supabase.
- * This runs on the server.
- * 
- * @param data The data object to insert. Keys should match the table columns.
- * @returns The inserted data or throws an error.
- */
 export async function createSource(data: CreateSourceParams) {
     const { data: insertedData, error } = await supabase
         .from('Sources-Table')
@@ -36,14 +28,6 @@ export async function createSource(data: CreateSourceParams) {
     return insertedData;
 }
 
-
-/**
- * Fetches sources from the "Sources-Table" in Supabase.
- * This runs on the server.
- * 
- * @param inTrash Whether to fetch items in trash or not. Defaults to false.
- * @returns An array of SourceDocument objects.
- */
 export async function getSources(inTrash: boolean = false): Promise<SourceDocument[]> {
     let query = supabase
         .from('Sources-Table')
@@ -75,23 +59,6 @@ export async function getSources(inTrash: boolean = false): Promise<SourceDocume
     }));
 }
 
-/**
- * Fetches a single source by ID from the "Sources-Table" in Supabase.
- * This runs on the server.
- * 
- * @param id The ID of the source to fetch.
- * @returns A SourceDocument object or null if not found.
- */
-// Helper to get key from URL (duplicate from upload.ts but kept for safety/isolation or export from there)
-const extractKey = (url: string) => {
-    try {
-        const urlObj = new URL(url);
-        return urlObj.pathname.substring(1);
-    } catch (e) {
-        return null;
-    }
-};
-
 export async function getSourceById(id: string): Promise<SourceDocument | null> {
     const { data, error } = await supabase
         .from('Sources-Table')
@@ -111,7 +78,7 @@ export async function getSourceById(id: string): Promise<SourceDocument | null> 
     if (data.type !== 'YOUTUBE' && data.file_url) {
         const urls = Array.isArray(data.file_url) ? data.file_url : [data.file_url];
         const signedUrls = await Promise.all(urls.map(async (url: string) => {
-            const key = extractKey(url);
+            const key = extractKeyFromUrl(url);
             if (key) {
                 return await getPresignedDownloadUrl(key) || url;
             }

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { genAI } from '@/lib/gemini';
 import { z } from "zod";
-export async function POST(req: NextRequest) {
+import { cleanJsonString } from '@/lib/ai-utils';
 
+export async function POST(req: NextRequest) {
+    
     const flashcardSchema = z.object({
         term: z.string().describe("The main text of the flashcard. This can be either: (1) a term extracted from the source, or (2) a question generated from the content. Keep it short, concise, easy to learn, and directly related to the source."),
         definition: z.string().describe("The explanation of the flashcard. This can be either: (1) the definition of the term, or (2) the answer to the question. Keep it short, clear, easy to understand, and directly based on the source."),
@@ -88,10 +90,10 @@ export async function POST(req: NextRequest) {
         }
 
         // Clean up code blocks if the model ignores the "no markdown" rule
-        generatedText = generatedText.replace(/```json\n?|\n?```/g, "").trim();
+        const cleanedText = cleanJsonString(generatedText);
 
         console.log("\nRaw Result:", generatedText);
-        const parsedResult = JSON.parse(generatedText);
+        const parsedResult = JSON.parse(cleanedText);
         const validatedResult = deckSchema.parse(parsedResult);
         const normalizedFlashcards = validatedResult.flashcards.map((card) => ({
             term: card.term,
