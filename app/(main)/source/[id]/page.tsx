@@ -153,6 +153,8 @@ export default function SourcePage() {
             setIsSummaryDialogOpen(true);
         } else if (type === 'flashcards') {
             generation.generate(type);
+        } else if (type === 'notes') {
+            generation.generate(type);
         }
     };
 
@@ -236,11 +238,11 @@ export default function SourcePage() {
             />
 
             <SuccessDialog
-                isOpen={generation.isSuccess('flashcards')}
+                isOpen={generation.isSuccess('flashcards') || generation.isSuccess('notes')}
                 onClose={generation.resetSuccess}
                 title={generation.generatedTitle}
                 materialId={generation.generatedMaterialId || ''}
-                type="flashcards"
+                type={generation.isSuccess('flashcards') ? 'flashcards' : 'notes'}
             />
         </div>
     );

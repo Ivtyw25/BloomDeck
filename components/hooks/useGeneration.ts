@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { saveGeneratedDeck } from '@/services/material';
+import { saveGeneratedDeck, saveGeneratedNote } from '@/services/material';
 
 export type GenerationType = 'flashcards' | 'summary' | 'notes';
 
@@ -52,6 +52,33 @@ export function useGeneration({ sourceId, fileSearchStoreID }: UseGenerationProp
                 setGeneratedTitle(material.title);
                 setSuccessItem(type);
                 toast.success("Flashcards generated successfully!");
+            } else if (type === 'notes') {
+                const response = await fetch('/api/ai/create-notes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileSearchStoreID })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to generate notes");
+                }
+
+                if (!data.content || !data.title || !data.preview) {
+                    throw new Error("Invalid AI response format");
+                }
+
+                const material = await saveGeneratedNote(
+                    data.title,
+                    data.content,
+                    data.preview
+                );
+
+                setGeneratedMaterialId(material.id);
+                setGeneratedTitle(material.title);
+                setSuccessItem(type);
+                toast.success("Notes generated successfully!");
             }
             // Add other types here
         } catch (error: any) {

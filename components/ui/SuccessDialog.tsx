@@ -17,16 +17,19 @@ interface SuccessDialogProps {
     onClose: () => void;
     title: string;
     materialId: string;
-    type: 'flashcards';
+    type: 'flashcards' | 'notes';
 }
 
-export function SuccessDialog({ isOpen, onClose, title, materialId}: SuccessDialogProps) {
+export function SuccessDialog({ isOpen, onClose, title, materialId, type }: SuccessDialogProps) {
     const router = useRouter();
 
     const handleGoToDeck = () => {
         router.push(`/materials/${materialId}`);
         onClose();
     };
+
+    const typeLabel = type === 'flashcards' ? 'Flashcards' : 'Notes';
+    const actionLabel = type === 'flashcards' ? 'Go to Deck' : 'View Notes';
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -43,26 +46,26 @@ export function SuccessDialog({ isOpen, onClose, title, materialId}: SuccessDial
 
                         <DialogHeader>
                             <DialogTitle className="text-xl font-heading font-semibold text-text-main">
-                                Flashcards Generated!
+                                {typeLabel} Generated!
                             </DialogTitle>
                             <DialogDescription className="text-sm text-text-muted mt-2">
                                 successfully generated <span className="font-semibold text-primary">"{title}"</span>.
-                                You can now start studying or editing your new flashcard deck.
+                                You can now start studying or editing your new {typeLabel.toLowerCase()}.
                             </DialogDescription>
                         </DialogHeader>
 
                         <div className="flex w-full gap-3 mt-4">
                             <button
                                 onClick={onClose}
-                                className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+                                className="cursor-pointer hover:scale-105 active:scale-95 flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
                             >
                                 Stay Here
                             </button>
                             <button
                                 onClick={handleGoToDeck}
-                                className="flex-1 px-4 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-hover transition-colors flex items-center justify-center gap-2 shadow-sm shadow-primary/20"
+                                className="cursor-pointer hover:scale-105 active:scale-95 flex-1 px-4 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-hover transition-colors flex items-center justify-center gap-2 shadow-sm shadow-primary/20"
                             >
-                                Go to Deck
+                                {actionLabel}
                                 <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>

@@ -53,4 +53,5 @@ export interface MaterialItem {
   trashedAt?: string | null;
   createdAt: string;
   content?: string;
+  preview?: string
 }

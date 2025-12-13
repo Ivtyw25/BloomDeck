@@ -66,7 +66,7 @@ export default function MaterialCard({ data, type }: MaterialCardProps) {
                         </div>
                     ) : (
                         <p className="text-sm text-text-muted line-clamp-3 leading-relaxed">
-                            {data.content}
+                            {data.preview}
                         </p>
                     )}
                 </div>

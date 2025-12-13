@@ -12,6 +12,7 @@ import { MaterialItem } from '@/types/types';
 import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog';
 import { ExplanationModal } from '@/components/ui/ExplanationModal';
 import { toast } from 'sonner';
+import NoteDetailView from '@/components/note/NoteDetailView';
 
 interface MaterialDetailProps {
     params: Promise<{ id: string }>;
@@ -46,13 +47,10 @@ export default function MaterialDetailView({ params }: MaterialDetailProps) {
 
     if (material.type === 'NOTE') {
         return (
-            <div className="flex flex-col items-center justify-center h-screen">
-                <h1 className="text-2xl font-bold mb-4">Note View</h1>
-                <p className="text-gray-500 mb-4">Note UI implementation pending.</p>
-                <button onClick={() => router.push('/materials')} className="flex items-center gap-2 text-brand-textSecondary hover:text-brand-primary">
-                    <ArrowLeft className="w-4 h-4" /> Back to Materials
-                </button>
-            </div>
+            <NoteDetailView
+                note={material}
+                onBack={() => router.push('/materials')}
+            />
         );
     }
 

@@ -6,6 +6,8 @@ import { MaterialItem, MaterialType, Flashcard } from "@/app/types/types";
 export interface CreateMaterialParams {
     title: string;
     type: MaterialType;
+    content?: string;
+    preview?: string;
 }
 
 /**
@@ -42,7 +44,8 @@ export async function getMaterials(inTrash: boolean = false): Promise<MaterialIt
         inTrash: item.inTrash,
         trashedAt: item.trashed_at,
         createdAt: item.created_at,
-        content: item.content
+        content: item.content,
+        preview: item.type !== 'FLASHCARD' ? item.preview : '',
     }));
 }
 
@@ -190,6 +193,21 @@ export async function saveGeneratedDeck(title: string, flashcards: { term: strin
     if (error) {
         console.error("Supabase Batch Insert Flashcards Error:", error);
         throw new Error(`Failed to save flashcards: ${error.message}`);
+    }
+
+    return material;
+}
+
+export async function saveGeneratedNote(title: string, content: string, preview: string) {
+    const material = await createMaterial({
+        title: title,
+        type: 'NOTE' as MaterialType,
+        content: content,
+        preview: preview
+    });
+
+    if (!material) {
+        throw new Error("Failed to create note material");
     }
 
     return material;

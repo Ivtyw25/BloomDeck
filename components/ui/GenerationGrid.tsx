@@ -50,7 +50,7 @@ export function GenerationGrid({ onGenerate, isGenerating, isSuccess, disabled }
                             isGenerating={isGenerating(card.type)}
                             isSuccess={isSuccess(card.type)}
                             onGenerate={() => onGenerate(card.type)}
-                            disabled={disabled}
+                            disabled={disabled || (disabled === undefined ? false : disabled)}
                         />
                     ))}
                 </div>
