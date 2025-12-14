@@ -10,13 +10,8 @@ interface SourcePreviewProps {
 }
 
 export function SourcePreview({ type, url, containedTypes }: SourcePreviewProps) {
-    // For MIXED types, we need state to switch between available sub-types
-    // Default to the first contained type if available, otherwise just use the main type
-    const [viewType, setViewType] = useState<FileType>(
-        type === 'MIXED' && containedTypes && containedTypes.length > 0
-            ? containedTypes[0]
-            : type
-    );
+    // State to track the active file index (0 for first file)
+    const [activeIndex, setActiveIndex] = useState(0);
 
     // YouTube ID extraction logic
     const getYouTubeId = (videoUrl: string) => {
@@ -28,19 +23,19 @@ export function SourcePreview({ type, url, containedTypes }: SourcePreviewProps)
     const getActiveUrl = (): string | undefined => {
         if (!url) return undefined;
         if (Array.isArray(url)) {
-            if (type === 'MIXED' && containedTypes) {
-                const index = containedTypes.indexOf(viewType);
-                if (index !== -1 && index < url.length) {
-                    return url[index];
-                }
-            }
-            return url[0];
+            return url[activeIndex];
         }
         return url as string;
     };
 
     const activeUrl = getActiveUrl();
-    const renderViewer = (currentType: FileType, currentUrl?: string) => {
+
+    // Determine the type of the currently active file
+    const currentType = (type === 'MIXED' && containedTypes && containedTypes[activeIndex])
+        ? containedTypes[activeIndex]
+        : type;
+
+    const renderViewer = (viewingType: FileType, currentUrl?: string) => {
         if (!currentUrl) {
             return (
                 <div className="flex flex-col items-center justify-center h-full text-gray-500">
@@ -50,7 +45,7 @@ export function SourcePreview({ type, url, containedTypes }: SourcePreviewProps)
             )
         }
 
-        if (currentType === 'YOUTUBE') {
+        if (viewingType === 'YOUTUBE') {
             const videoId = getYouTubeId(currentUrl);
             if (videoId) {
                 return (
@@ -75,7 +70,7 @@ export function SourcePreview({ type, url, containedTypes }: SourcePreviewProps)
             );
         }
 
-        if (currentType === 'PDF' || currentType === 'DOCX' || currentType === 'PPT') {
+        if (viewingType === 'PDF' || viewingType === 'DOCX' || viewingType === 'PPT') {
             // Google Docs Viewer for Office files and PDF (better mobile support)
             return (
                 <iframe
@@ -89,25 +84,31 @@ export function SourcePreview({ type, url, containedTypes }: SourcePreviewProps)
         return (
             <div className="flex flex-col items-center justify-center h-full text-gray-500">
                 <FileText className="w-16 h-16 mb-4 opacity-20" />
-                <p>Preview not available for {currentType}</p>
+                <p>Preview not available for {viewingType}</p>
                 <a href={currentUrl} target="_blank" rel="noopener noreferrer" className="mt-2 text-primary hover:underline">Download / Open Link</a>
             </div>
         )
     };
 
+    // Calculate URLs for iteration
+    const previewUrls = Array.isArray(url) ? url : (url ? [url] : []);
+
     return (
         <div className="flex flex-col h-full w-full max-w-none">
-            {type === 'MIXED' && containedTypes && (
+            {previewUrls.length > 1 && (
                 <div className="mb-4 self-center">
-                    <Tabs value={viewType} onValueChange={(val) => setViewType(val as FileType)}>
+                    <Tabs value={String(activeIndex)} onValueChange={(val) => setActiveIndex(Number(val))}>
                         <TabsList className="bg-gray-100 p-1 rounded-lg">
-                            {containedTypes.map(t => (
+                            {previewUrls.map((_, index) => (
                                 <TabsTab
-                                    key={t}
-                                    value={t}
+                                    key={index}
+                                    value={String(index)}
                                     className="cursor-pointer px-4 py-1.5 text-xs font-medium rounded-md transition-all text-gray-500 data-selected:bg-white data-selected:shadow-sm data-selected:text-primary"
                                 >
-                                    {t}
+                                    {/* Use contained type name if available (MIXED situation), otherwise simply File 1, 2... */}
+                                    {(type === 'MIXED' && containedTypes && containedTypes[index])
+                                        ? containedTypes[index]
+                                        : `File ${index + 1}`}
                                 </TabsTab>
                             ))}
                         </TabsList>
@@ -116,7 +117,7 @@ export function SourcePreview({ type, url, containedTypes }: SourcePreviewProps)
             )}
 
             <div className="flex-1 w-full relative bg-gray-50 border border-gray-200 shadow-sm rounded-xl overflow-hidden">
-                {renderViewer(viewType, activeUrl)}
+                {renderViewer(currentType, activeUrl)}
             </div>
         </div>
     );

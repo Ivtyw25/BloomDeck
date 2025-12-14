@@ -23,11 +23,23 @@ export default function UploadPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const addFiles = (newFiles: File[]) => {
-        if (files.length + newFiles.length > 2) {
+        const uniqueNewFiles = newFiles.filter(newFile =>
+            !files.some(existingFile =>
+                existingFile.name === newFile.name && existingFile.size === newFile.size
+            )
+        );
+
+        if (uniqueNewFiles.length !== newFiles.length) {
+            toast.error("Duplicate files were ignored.");
+        }
+
+        if (uniqueNewFiles.length === 0) return;
+
+        if (files.length + uniqueNewFiles.length > 2) {
             toast.error("You can only upload a maximum of 2 files.");
             return;
         }
-        setFiles(prev => [...prev, ...newFiles]);
+        setFiles(prev => [...prev, ...uniqueNewFiles]);
     };
 
     const removeFile = (index: number) => {
@@ -138,12 +150,12 @@ export default function UploadPage() {
                 let containedTypes: string[] | null = null;
                 const uniqueTypes = Array.from(typesSet);
 
-                if (files.length > 1) {
-                    finalType = 'MIXED';
-                    containedTypes = uniqueTypes;
-                } else if (files.length === 1) {
+                if (uniqueTypes.length === 1) {
                     finalType = uniqueTypes[0];
                     containedTypes = null;
+                } else {
+                    finalType = 'MIXED';
+                    containedTypes = uniqueTypes;
                 }
 
                 await createSource({
@@ -203,16 +215,16 @@ export default function UploadPage() {
 
                 {/* Source Name Input */}
                 <div className="mb-8">
-                    <label className="block text-sm font-semibold text-text-main mb-2.5 ml-1">Source Name (Optional)</label>
+                    <label className="block text-sm font-semibold text-text-main mb-2.5 ml-1">Source Name</label>
                     <input
                         type="text"
                         value={sourceName}
                         onChange={(e) => setSourceName(e.target.value)}
-                        placeholder="Untitled Source"
+                        placeholder="e.g. Data Structures and Algorithms - Sorting"
                         className="w-full px-5 py-3.5 bg-surface-subtle shadow-xs border rounded-xl text-sm font-normal text-text-main placeholder:text-gray-400 hover:bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/40 border-transparent outline-none transition-all"
                     />
                     <p className="text-xs font-normal text-gray-400 mt-2 ml-1">
-                        If left empty, we'll automatically name it for you.
+                        Give your source a relevant and purposeful name. If left empty, we'll automatically name it for you
                     </p>
                 </div>
 

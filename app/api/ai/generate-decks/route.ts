@@ -42,9 +42,9 @@ export async function POST(req: NextRequest) {
         </constraints>
 
         <instructions>
-            1. Read and deeply understand the content provided in the file(s) or video.
+            1. Read and deeply understand the content provided in the file search store.
             2. Identify the most important concepts, definitions, arguments, examples, and insights.
-            3. Summarize each concept into clear flashcard pairs.
+            3. Summarize each concept into clear flashcard pairs related to the file search store.
             4. For each flashcard, use the following keys:
                - "term": The main concept OR a study key. (should be concise, max 5-7 words)
                - "definition": The explanation of the term. (should be clear and understandable)

@@ -43,14 +43,14 @@ export const useFlashcardStudy = (deckId: string) => {
     const handleNext = useCallback(() => {
         if (currentIndex < activeDeck.length - 1) {
             setIsFlipped(false);
-            setTimeout(() => setCurrentIndex(prev => prev + 1), 100);
+            setTimeout(() => setCurrentIndex(prev => prev + 1), 10);
         }
     }, [currentIndex, activeDeck.length]);
 
     const handlePrev = useCallback(() => {
         if (currentIndex > 0) {
             setIsFlipped(false);
-            setTimeout(() => setCurrentIndex(prev => prev - 1), 100);
+            setTimeout(() => setCurrentIndex(prev => prev - 1), 10);
         }
     }, [currentIndex]);
 

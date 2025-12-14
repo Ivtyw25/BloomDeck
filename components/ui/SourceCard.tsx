@@ -1,5 +1,5 @@
 import { SourceDocument, FileType } from '@/types/types';
-import { FileText, File, Presentation, FileCode } from 'lucide-react';
+import { FileText, File, Presentation, FileCode, Layers } from 'lucide-react';
 import { YouTubeIcon } from '@/lib/icons';
 import { CardPopover } from '@/components/source/CardPopover';
 import Link from 'next/link';
@@ -20,6 +20,7 @@ export default function SourceCard({ data, type }: SourceCardProps) {
             case 'PPT': return <Presentation className={`${className} text-[#f97316]`} strokeWidth={2} />;
             case 'DOCX': return <FileCode className={`${className} text-[#3b82f6]`} strokeWidth={2} />;
             case 'YOUTUBE': return <YouTubeIcon className={`${className} text-[#ff0000]`} />;
+            case 'MIXED': return <Layers className={`${className} text-gray-500`} strokeWidth={2} />;
             default: return <File className={`${className} text-gray-500`} strokeWidth={2} />;
         }
     };
@@ -30,25 +31,36 @@ export default function SourceCard({ data, type }: SourceCardProps) {
             case 'PPT': return 'bg-[#fff7ed]';
             case 'DOCX': return 'bg-[#eff6ff]';
             case 'YOUTUBE': return 'bg-[#fef2f2]';
+            case 'MIXED': return 'bg-gray-50';
             default: return 'bg-gray-50';
         }
     };
 
     const renderIconArea = () => {
-        if (data.type === 'MIXED' && data.containedTypes && data.containedTypes.length >= 2) {
-            const type1 = data.containedTypes[0];
-            const type2 = data.containedTypes[1];
+        if (data.type === 'MIXED' && data.containedTypes) {
+            if (data.containedTypes.length >= 2) {
+                const type1 = data.containedTypes[0];
+                const type2 = data.containedTypes[1];
 
-            return (
-                <div className="flex w-14 h-14 rounded-xl overflow-hidden shadow-sm ring-1 ring-black/5">
-                    <div className={`w-1/2 h-full flex items-center justify-center ${getBgColorForType(type1)}`}>
-                        {getSingleIcon(type1, "w-5 h-5")}
+                return (
+                    <div className="flex w-14 h-14 rounded-xl overflow-hidden shadow-sm ring-1 ring-black/5">
+                        <div className={`w-1/2 h-full flex items-center justify-center ${getBgColorForType(type1)}`}>
+                            {getSingleIcon(type1, "w-5 h-5")}
+                        </div>
+                        <div className={`w-1/2 h-full flex items-center justify-center ${getBgColorForType(type2)}`}>
+                            {getSingleIcon(type2, "w-5 h-5")}
+                        </div>
                     </div>
-                    <div className={`w-1/2 h-full flex items-center justify-center ${getBgColorForType(type2)}`}>
-                        {getSingleIcon(type2, "w-5 h-5")}
+                );
+            } else if (data.containedTypes.length === 1) {
+                // Handle case where MIXED acts as a single type
+                const singleType = data.containedTypes[0];
+                return (
+                    <div className={`w-14 h-14 flex items-center justify-center rounded-xl transition-colors shadow-sm ring-1 ring-black/5 ${getBgColorForType(singleType)}`}>
+                        {getSingleIcon(singleType, "w-7 h-7")}
                     </div>
-                </div>
-            );
+                );
+            }
         }
 
         return (

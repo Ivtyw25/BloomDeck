@@ -109,7 +109,7 @@ export default function SourcePage() {
 
     const handleBack = () => {
         if (isBackDisabled) return;
-        router.back();
+        router.push('/source');
     };
 
     const handleSummarySubmit = async (concept: string) => {

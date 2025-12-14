@@ -37,9 +37,9 @@ export async function POST(req: NextRequest) {
         </constraints>
 
         <instructions>
-            1. Read and deeply understand the content provided in the file(s) or video.
+            1. Read and deeply understand the content provided in the filesearch store.
             2. Identify the most important concepts, definitions, arguments, examples, and insights.
-            3. Rewrite the content into a structured study guide using Markdown formatting.
+            3. Rewrite the content into a structured study guide based on the filesearch store using Markdown formatting.
             4. formatting rules:
                - Use # for main titles (though the JSON has a separate title field).
                - Use ## and ### for subheadings.

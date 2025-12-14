@@ -57,7 +57,19 @@ const NoteDetailView: React.FC<NoteDetailViewProps> = ({ note, onBack }) => {
                 {/* Document Paper */}
                 <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-8 md:p-12 relative overflow-hidden">
                     {/* Decorative Top Accent */}
-                    <div className="absolute top-0 left-0 right-0 h-1.5  via-primary to-purple-200"></div>
+                    {/* Decorative Top Accent */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-purple-200 via-primary to-purple-200"></div>
+
+                    {/* Preview / Abstract */}
+                    {note.preview && (
+                        <div className="mb-8 p-6 bg-gray-50/80 rounded-xl border border-gray-100/50 text-gray-600 italic">
+                            <div className="prose prose-sm max-w-none">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {note.preview}
+                                </ReactMarkdown>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Note Content */}
                     <div className="prose prose-stone max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-li:text-gray-700">

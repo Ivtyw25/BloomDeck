@@ -26,17 +26,11 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
                     h3: ({ children }) => <h3 className="text-md font-bold mb-2 mt-2">{children}</h3>,
                     blockquote: ({ children }) => <blockquote className="border-l-4 border-primary/30 pl-4 italic my-2">{children}</blockquote>,
                     code: ({ node, inline, className, children, ...props }: any) => {
-                        return inline ? (
+                        return (
                             <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-pink-500" {...props}>
                                 {children}
                             </code>
-                        ) : (
-                            <span className="bg-gray-900 rounded-lg p-3 my-1 mx-1 overflow-x-auto inline-block align-middle max-w-full">
-                                <code className="text-sm font-mono text-gray-100 block" {...props}>
-                                    {children}
-                                </code>
-                            </span>
-                        )
+                        );
                     },
                     table: ({ children }) => (
                         <div className="overflow-x-auto my-4 border border-gray-200 rounded-lg">
